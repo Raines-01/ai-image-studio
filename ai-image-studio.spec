@@ -5,6 +5,12 @@ from pathlib import Path
 block_cipher = None
 base_dir = Path(SPECPATH)
 
+# Choose icon based on platform
+if sys.platform == 'win32':
+    icon_path = str(base_dir / 'static' / 'logo.ico')
+else:
+    icon_path = str(base_dir / 'static' / 'logo.png')
+
 a = Analysis(
     [str(base_dir / 'app.py')],
     pathex=[str(base_dir)],
@@ -51,5 +57,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,
+    icon=icon_path,
 )

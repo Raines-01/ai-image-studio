@@ -20,15 +20,24 @@ const History = {
       if (!e.files || !e.files.length) return '';
       return e.files.map(f => {
         const url = `/api/history/${e.id}/images/${f}`;
-        return `<img src="${url}" title="${this._esc(e.prompt || '')}" data-id="${e.id}" data-filename="${this._esc(f)}">`;
+        return `<div class="history-item" data-id="${e.id}" data-filename="${this._esc(f)}">
+          <img src="${url}" title="${this._esc(e.prompt || '')}">
+          <button class="history-item-menu">⋯</button>
+        </div>`;
       }).join('');
     }).join('');
 
-    grid.querySelectorAll('img').forEach(img => {
-      img.onclick = () => this.openViewer(img.dataset.id);
+    grid.querySelectorAll('.history-item').forEach(item => {
+      const img = item.querySelector('img');
+      const btn = item.querySelector('.history-item-menu');
+      img.onclick = () => this.openViewer(item.dataset.id);
       img.oncontextmenu = (ev) => {
         ev.preventDefault();
-        this.showContextMenu(ev, img.dataset.id, img.dataset.filename);
+        this.showContextMenu(ev, item.dataset.id, item.dataset.filename);
+      };
+      btn.onclick = (ev) => {
+        ev.stopPropagation();
+        this.showDropdown(item, item.dataset.id, item.dataset.filename);
       };
     });
   },
@@ -175,6 +184,43 @@ const History = {
         } else if (action === 'ref') {
           if (typeof App !== 'undefined') App.loadRefFromUrl(`/api/serve-file?path=${encodeURIComponent(filePath)}`);
         }
+        close();
+      };
+    });
+  },
+
+  showDropdown(itemEl, entryId, filename) {
+    const existing = itemEl.querySelector('.history-item-dropdown');
+    if (existing) { existing.remove(); return; }
+
+    document.querySelectorAll('.history-item-dropdown').forEach(d => d.remove());
+
+    const entry = this.entries.find(e => e.id === entryId);
+    const hasMultiple = entry && entry.files && entry.files.length > 1;
+
+    const dd = document.createElement('div');
+    dd.className = 'history-item-dropdown';
+    dd.innerHTML = `
+      <div class="dropdown-item" data-action="view">View / 查看大图</div>
+      <div class="dropdown-item" data-action="ref">Use as Reference / 作为参考图</div>
+      <div class="dropdown-item danger" data-action="delete-image">Delete this image / 删除此图</div>
+      ${hasMultiple ? '<div class="dropdown-item danger" data-action="delete-entry">Delete all in entry / 删除整组</div>' : ''}
+      <div class="dropdown-item danger" data-action="delete-all">Delete ALL / 删除全部历史</div>
+    `;
+    itemEl.appendChild(dd);
+
+    const close = () => { dd.remove(); document.removeEventListener('click', close); };
+    setTimeout(() => document.addEventListener('click', close), 0);
+
+    dd.querySelectorAll('.dropdown-item').forEach(di => {
+      di.onclick = (ev) => {
+        ev.stopPropagation();
+        const action = di.dataset.action;
+        if (action === 'view') this.openViewer(entryId);
+        else if (action === 'ref') this.useAsReference(entryId);
+        else if (action === 'delete-image') this.deleteImage(entryId, filename);
+        else if (action === 'delete-entry') this.deleteEntry(entryId);
+        else if (action === 'delete-all') this.deleteAll();
         close();
       };
     });

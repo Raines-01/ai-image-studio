@@ -23,7 +23,7 @@ pip install requests
 
 REM Build
 echo Building with PyInstaller...
-pyinstaller --clean ai-image-studio.spec
+python -m PyInstaller --clean ai-image-studio.spec
 
 echo.
 echo === Build complete ===
