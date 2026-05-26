@@ -39,6 +39,11 @@ header {
   gap: 16px;
   flex-shrink: 0;
 }
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 header h1 {
   font-size: 18px;
   font-weight: 600;
@@ -46,9 +51,9 @@ header h1 {
   white-space: nowrap;
 }
 .header-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
 }
 .header-right {
   display: flex;
