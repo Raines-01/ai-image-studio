@@ -198,6 +198,110 @@ select { cursor: pointer; }
 }
 .preview-thumb:hover { border-color: var(--danger); }
 
+/* ── Size Editor ── */
+.size-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.size-presets {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.size-preset-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.size-preset-btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+.size-preset-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.size-inputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+.size-inputs .field { flex: 1; }
+.size-inputs input[type="number"] {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 14px;
+  text-align: center;
+}
+.size-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+.size-row .size-inputs { flex: 1; }
+.size-preview-box {
+  width: 56px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  padding: 6px;
+}
+.size-preview-rect {
+  border: 2px solid var(--accent);
+  border-radius: 2px;
+  background: rgba(79,140,255,.08);
+  transition: width .2s, height .2s;
+}
+.size-dim-label {
+  font-size: 11px !important;
+  text-align: center;
+}
+.btn-link-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.btn-link-icon:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+.btn-link-icon.locked {
+  color: var(--accent);
+}
+.lock-icon-locked { display: none; }
+.lock-icon-unlocked { display: block; }
+.btn-link-icon.locked .lock-icon-locked { display: block; }
+.btn-link-icon.locked .lock-icon-unlocked { display: none; }
+.size-hint {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  min-height: 16px;
+}
+
 /* ── Advanced Section ── */
 details.advanced-section {
   border: 1px solid var(--border);

@@ -4,8 +4,11 @@ const App = {
     configs: [],
     activeConfigId: '',
     activeConfig: null,
-    referenceImages: [],  // File objects
+    referenceImages: [],
     queuePolling: null,
+    sizeLocked: true,
+    sizeRatio: 1,
+    sizeAuto: false,
   },
 
   async init() {
@@ -41,11 +44,14 @@ const App = {
       if (this.state.activeConfig.default_params) {
         const p = this.state.activeConfig.default_params;
         if (p.size) {
-          const sel = document.getElementById('size-preset');
-          const custom = document.getElementById('size-custom');
-          const opt = [...sel.options].find(o => o.value === p.size);
-          if (opt) { sel.value = p.size; custom.classList.add('hidden'); }
-          else { sel.value = 'custom'; custom.value = p.size; custom.classList.remove('hidden'); }
+          if (p.size === 'auto') {
+            this.setSizeAuto(true);
+          } else {
+            const m = p.size.match(/^(\d+)\s*[x×]\s*(\d+)$/i);
+            if (m) {
+              this.setSizeValues(parseInt(m[1]), parseInt(m[2]));
+            }
+          }
         }
         if (p.quality) document.getElementById('quality').value = p.quality;
         if (p.output_format) document.getElementById('output-format').value = p.output_format;
@@ -87,10 +93,8 @@ const App = {
     document.getElementById('wizard-next').onclick = () => Wizard.next();
     document.getElementById('wizard-back').onclick = () => Wizard.back();
 
-    // Size preset
-    document.getElementById('size-preset').onchange = (e) => {
-      document.getElementById('size-custom').classList.toggle('hidden', e.target.value !== 'custom');
-    };
+    // Size editor
+    this.initSizeEditor();
 
     // Generate button
     document.getElementById('btn-generate').onclick = () => this.generate();
@@ -217,9 +221,10 @@ const App = {
   },
 
   getSize() {
-    const sel = document.getElementById('size-preset').value;
-    if (sel === 'custom') return document.getElementById('size-custom').value.trim() || '1024x1024';
-    return sel;
+    if (this.state.sizeAuto) return 'auto';
+    const w = parseInt(document.getElementById('size-w').value) || 1024;
+    const h = parseInt(document.getElementById('size-h').value) || 1024;
+    return `${w}x${h}`;
   },
 
   gatherParams() {
@@ -385,6 +390,134 @@ const App = {
     const el = document.getElementById('status');
     el.textContent = msg;
     el.className = 'status ' + (cls || '');
+  },
+
+  initSizeEditor() {
+    const lockBtn = document.getElementById('size-lock');
+    const wInput = document.getElementById('size-w');
+    const hInput = document.getElementById('size-h');
+    const presetBtns = document.querySelectorAll('.size-preset-btn');
+
+    lockBtn.onclick = () => {
+      this.state.sizeLocked = !this.state.sizeLocked;
+      lockBtn.classList.toggle('locked', this.state.sizeLocked);
+      if (this.state.sizeLocked) {
+        this.state.sizeRatio = (parseInt(wInput.value) || 1024) / (parseInt(hInput.value) || 1024);
+      }
+    };
+    lockBtn.classList.add('locked');
+    this.state.sizeLocked = true;
+    this.state.sizeRatio = 1;
+
+    const onWChange = () => {
+      this.state.sizeAuto = false;
+      this.clearPresetActive();
+      if (this.state.sizeLocked) {
+        const w = parseInt(wInput.value) || 1;
+        const h = Math.round(w / this.state.sizeRatio);
+        hInput.value = Math.max(1, h);
+      }
+      this.updateSizeHint();
+    };
+    const onHChange = () => {
+      this.state.sizeAuto = false;
+      this.clearPresetActive();
+      if (this.state.sizeLocked) {
+        const h = parseInt(hInput.value) || 1;
+        const w = Math.round(h * this.state.sizeRatio);
+        wInput.value = Math.max(1, w);
+      }
+      this.updateSizeHint();
+    };
+
+    wInput.addEventListener('input', onWChange);
+    hInput.addEventListener('input', onHChange);
+
+    presetBtns.forEach(btn => {
+      btn.onclick = () => {
+        presetBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (btn.dataset.value === 'auto') {
+          this.setSizeAuto(true);
+        } else {
+          const w = parseInt(btn.dataset.w);
+          const h = parseInt(btn.dataset.h);
+          this.setSizeValues(w, h);
+        }
+      };
+    });
+
+    this.updateSizeHint();
+  },
+
+  clearPresetActive() {
+    document.querySelectorAll('.size-preset-btn').forEach(b => b.classList.remove('active'));
+  },
+
+  setSizeAuto(auto) {
+    this.state.sizeAuto = auto;
+    const wInput = document.getElementById('size-w');
+    const hInput = document.getElementById('size-h');
+    wInput.disabled = auto;
+    hInput.disabled = auto;
+    if (auto) {
+      wInput.value = '';
+      hInput.value = '';
+      document.getElementById('size-hint').textContent = 'Auto';
+      this.clearPresetActive();
+      document.querySelector('.size-preset-btn[data-value="auto"]').classList.add('active');
+    }
+  },
+
+  setSizeValues(w, h) {
+    this.state.sizeAuto = false;
+    this.state.sizeRatio = w / h;
+    const wInput = document.getElementById('size-w');
+    const hInput = document.getElementById('size-h');
+    wInput.disabled = false;
+    hInput.disabled = false;
+    wInput.value = w;
+    hInput.value = h;
+    this.matchPresetBtn(w, h);
+    this.updateSizeHint();
+  },
+
+  matchPresetBtn(w, h) {
+    this.clearPresetActive();
+    document.querySelectorAll('.size-preset-btn').forEach(btn => {
+      if (btn.dataset.value) return;
+      const bw = parseInt(btn.dataset.w);
+      const bh = parseInt(btn.dataset.h);
+      if (bw === w && bh === h) btn.classList.add('active');
+    });
+  },
+
+  updateSizeHint() {
+    const w = parseInt(document.getElementById('size-w').value) || 0;
+    const h = parseInt(document.getElementById('size-h').value) || 0;
+    const hint = document.getElementById('size-hint');
+    const rect = document.getElementById('size-preview-rect');
+    if (!w || !h) {
+      hint.textContent = '';
+      rect.style.width = '0px';
+      rect.style.height = '0px';
+      return;
+    }
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    const g = gcd(w, h);
+    hint.textContent = `${w} × ${h} · ${w/g}:${h/g}`;
+    const maxDim = 40;
+    const ratio = w / h;
+    let rw, rh;
+    if (ratio >= 1) {
+      rw = maxDim;
+      rh = Math.max(4, Math.round(maxDim / ratio));
+    } else {
+      rh = maxDim;
+      rw = Math.max(4, Math.round(maxDim * ratio));
+    }
+    rect.style.width = rw + 'px';
+    rect.style.height = rh + 'px';
   },
 
   _esc(s) {
