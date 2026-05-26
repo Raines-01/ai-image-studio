@@ -40,7 +40,7 @@
 
 AI Image Studio 是一个轻量级、跨平台的本地 Web 工具，专门解决这个问题。启动后在浏览器中填入你的 API URL、Key 和模型名称，就能像使用 ChatGPT 一样直接在界面上生成图像，不需要写任何代码。
 
-![AI Image Studio 界面截图](static/demo.png)
+![AI Image Studio 界面截图](static/demo.png?v=2)
 
 ### 下载安装
 
@@ -218,7 +218,7 @@ Many users purchase third-party API access to gpt-image-2 and receive a URL and 
 
 AI Image Studio is a lightweight, cross-platform local web tool that solves this. Launch it, open your browser, enter your API URL, Key, and Model name — then generate images through an intuitive visual interface, as simple as using ChatGPT. No coding required.
 
-![AI Image Studio UI Screenshot](static/demo.png)
+![AI Image Studio UI Screenshot](static/demo.png?v=2)
 
 ### Download
 
@@ -396,7 +396,7 @@ ai-image-studio/
 
 AI Image Studio 是一個輕量級、跨平台的本地 Web 工具，專門解決這個問題。啟動後在瀏覽器中填入你的 API URL、Key 和模型名稱，就能像使用 ChatGPT 一樣直接在介面上生成圖像，不需要寫任何程式碼。
 
-![AI Image Studio 介面截圖](static/demo.png)
+![AI Image Studio 介面截圖](static/demo.png?v=2)
 
 ### 下載安裝
 
