@@ -2,149 +2,7 @@
 
 > 本地部署的图像生成 API 可视化调用工具 | A local web UI for image generation APIs
 
-[English](#english) | [简体中文](#简体中文) | [繁體中文](#繁體中文)
-
----
-
-## English
-
-### What is AI Image Studio?
-
-AI Image Studio is a lightweight, cross-platform local web tool that makes it easy to call third-party image generation APIs (OpenAI compatible format). Simply configure your API URL, Key, and Model — then generate images through an intuitive visual interface, as simple as using ChatGPT.
-
-### Features
-
-- **Zero dependencies** — Only needs Python 3.8+ and `requests`
-- **Multi-config support** — Save and switch between multiple API providers
-- **First-run wizard** — Guided setup with connection testing
-- **Text-to-image** — Enter a prompt, pick parameters, generate
-- **Image editing** — Upload reference images for img2img (drag, paste, or pick from history)
-- **Auto mode detection** — Automatically switches between txt2img and img2img
-- **Batch generation** — Generate N images per prompt + multi-prompt queue
-- **Queue management** — Real-time status, cancel support
-- **History** — Browse, search, delete, reuse as reference
-- **Image viewer** — Click to enlarge, multi-image navigation, download
-- **Dark theme UI** — Clean, modern interface
-- **Cross-platform** — Linux, macOS, Windows
-
-### Supported Models
-
-Currently supports **gpt-image-2** (any OpenAI-compatible API endpoint). More models planned.
-
-### Quick Start
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Raines-01/ai-image-studio.git
-cd ai-image-studio
-
-# 2. Install dependency
-pip install requests
-
-# 3. Run
-python3 app.py
-```
-
-The browser will open automatically at `http://127.0.0.1:7860` (port auto-increments if busy).
-
-### Usage Guide
-
-#### Step 1: Configure API
-
-On first launch, a setup wizard will appear:
-
-1. **Step 1** — Enter a config name (e.g. "My API") and your API Base URL (e.g. `https://api.example.com/v1`)
-2. **Step 2** — Enter your API Key and Model name (default: `gpt-image-2`)
-3. **Step 3** — Click "Test Connection" to verify, then "Save & Start"
-
-You can add more configs later via the ⚙️ gear icon in the top-right corner.
-
-#### Step 2: Generate Images
-
-**Text-to-Image:**
-1. Type a description in the prompt box
-2. Adjust parameters (size, quality, format) as needed
-3. Click **Generate** or press `Ctrl+Enter`
-4. The image appears in the result area when done
-
-**Image Editing (img2img):**
-1. Upload reference images by dragging files, pasting from clipboard (`Ctrl+V`), or clicking the upload area
-2. Alternatively, click "Select from History" to reuse a previously generated image
-3. Type an editing instruction in the prompt
-4. Adjust parameters (input fidelity controls how closely the output matches the reference)
-5. Click **Generate**
-
-The mode is auto-detected: if you have reference images, it's img2img; otherwise, it's txt2img.
-
-#### Step 3: Batch Generation
-
-- **Multiple images per prompt:** Set "Count" to N (1-10) to generate N variations at once
-- **Multiple prompts:** Submit several prompts — they queue up and process sequentially
-- Monitor progress in the Queue panel; cancel pending tasks with the × button
-
-#### Step 4: Browse History
-
-- All generated images are saved automatically
-- Search by prompt keyword
-- Click a thumbnail to view full-size in the lightbox
-- Right-click for options: View, Use as Reference, Delete
-
-### Parameters
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| Size | Image dimensions (presets or custom WxH) | 1024x1024 |
-| Quality | auto / low / medium / high | auto |
-| Format | png / jpeg / webp | png |
-| Count | Number of images (1-10) | 1 |
-| Compression | jpeg/webp quality (0-100) | 100 |
-| Moderation | Content filter: auto / low | auto |
-| Input Fidelity | img2img only: low / high | low |
-| Custom Filename | Override auto-generated filename | (auto) |
-
-### Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+Enter` | Generate image |
-| `Escape` | Close modal / viewer |
-
-### Project Structure
-
-```
-ai-image-studio/
-├── app.py              # Entry point, HTTP server
-├── config_manager.py   # Config CRUD, test connection
-├── api_client.py       # API calls (txt2img + img2img)
-├── queue_manager.py    # Background task queue
-├── history_manager.py  # History management
-├── helpers.py          # Utilities
-├── static/
-│   ├── index.html      # Single-page app
-│   ├── style.css       # Dark theme styles
-│   ├── app.js          # Core logic
-│   ├── api.js          # API wrappers
-│   ├── wizard.js       # First-run wizard
-│   ├── settings.js     # Settings modal
-│   ├── queue.js        # Queue panel
-│   ├── history.js      # History panel
-│   └── viewer.js       # Image lightbox
-└── LICENSE             # MIT
-```
-
-### Configuration Files
-
-| File | Location |
-|------|----------|
-| Config | `~/.ai-image-studio/config.json` |
-| History index | `~/.ai-image-studio/data/history.json` |
-| Generated images | `~/.ai-image-studio/data/<task-id>/` |
-
-> **Note:** API keys are stored in plaintext in the config file. This is acceptable for a local-only tool. Keep the file secure.
-
-### License
-
-[MIT](LICENSE)
+[简体中文](#简体中文) | [English](#english) | [繁體中文](#繁體中文)
 
 ---
 
@@ -285,6 +143,148 @@ ai-image-studio/
 > **注意：** API Key 以明文存储在配置文件中。作为本地工具这是可接受的，请妥善保管该文件。
 
 ### 许可证
+
+[MIT](LICENSE)
+
+---
+
+## English
+
+### What is AI Image Studio?
+
+AI Image Studio is a lightweight, cross-platform local web tool that makes it easy to call third-party image generation APIs (OpenAI compatible format). Simply configure your API URL, Key, and Model — then generate images through an intuitive visual interface, as simple as using ChatGPT.
+
+### Features
+
+- **Zero dependencies** — Only needs Python 3.8+ and `requests`
+- **Multi-config support** — Save and switch between multiple API providers
+- **First-run wizard** — Guided setup with connection testing
+- **Text-to-image** — Enter a prompt, pick parameters, generate
+- **Image editing** — Upload reference images for img2img (drag, paste, or pick from history)
+- **Auto mode detection** — Automatically switches between txt2img and img2img
+- **Batch generation** — Generate N images per prompt + multi-prompt queue
+- **Queue management** — Real-time status, cancel support
+- **History** — Browse, search, delete, reuse as reference
+- **Image viewer** — Click to enlarge, multi-image navigation, download
+- **Dark theme UI** — Clean, modern interface
+- **Cross-platform** — Linux, macOS, Windows
+
+### Supported Models
+
+Currently supports **gpt-image-2** (any OpenAI-compatible API endpoint). More models planned.
+
+### Quick Start
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Raines-01/ai-image-studio.git
+cd ai-image-studio
+
+# 2. Install dependency
+pip install requests
+
+# 3. Run
+python3 app.py
+```
+
+The browser will open automatically at `http://127.0.0.1:7860` (port auto-increments if busy).
+
+### Usage Guide
+
+#### Step 1: Configure API
+
+On first launch, a setup wizard will appear:
+
+1. **Step 1** — Enter a config name (e.g. "My API") and your API Base URL (e.g. `https://api.example.com/v1`)
+2. **Step 2** — Enter your API Key and Model name (default: `gpt-image-2`)
+3. **Step 3** — Click "Test Connection" to verify, then "Save & Start"
+
+You can add more configs later via the ⚙️ gear icon in the top-right corner.
+
+#### Step 2: Generate Images
+
+**Text-to-Image:**
+1. Type a description in the prompt box
+2. Adjust parameters (size, quality, format) as needed
+3. Click **Generate** or press `Ctrl+Enter`
+4. The image appears in the result area when done
+
+**Image Editing (img2img):**
+1. Upload reference images by dragging files, pasting from clipboard (`Ctrl+V`), or clicking the upload area
+2. Alternatively, click "Select from History" to reuse a previously generated image
+3. Type an editing instruction in the prompt
+4. Adjust parameters (input fidelity controls how closely the output matches the reference)
+5. Click **Generate**
+
+The mode is auto-detected: if you have reference images, it's img2img; otherwise, it's txt2img.
+
+#### Step 3: Batch Generation
+
+- **Multiple images per prompt:** Set "Count" to N (1-10) to generate N variations at once
+- **Multiple prompts:** Submit several prompts — they queue up and process sequentially
+- Monitor progress in the Queue panel; cancel pending tasks with the × button
+
+#### Step 4: Browse History
+
+- All generated images are saved automatically
+- Search by prompt keyword
+- Click a thumbnail to view full-size in the lightbox
+- Right-click for options: View, Use as Reference, Delete
+
+### Parameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| Size | Image dimensions (presets or custom WxH) | 1024x1024 |
+| Quality | auto / low / medium / high | auto |
+| Format | png / jpeg / webp | png |
+| Count | Number of images (1-10) | 1 |
+| Compression | jpeg/webp quality (0-100) | 100 |
+| Moderation | Content filter: auto / low | auto |
+| Input Fidelity | img2img only: low / high | low |
+| Custom Filename | Override auto-generated filename | (auto) |
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+Enter` | Generate image |
+| `Escape` | Close modal / viewer |
+
+### Project Structure
+
+```
+ai-image-studio/
+├── app.py              # Entry point, HTTP server
+├── config_manager.py   # Config CRUD, test connection
+├── api_client.py       # API calls (txt2img + img2img)
+├── queue_manager.py    # Background task queue
+├── history_manager.py  # History management
+├── helpers.py          # Utilities
+├── static/
+│   ├── index.html      # Single-page app
+│   ├── style.css       # Dark theme styles
+│   ├── app.js          # Core logic
+│   ├── api.js          # API wrappers
+│   ├── wizard.js       # First-run wizard
+│   ├── settings.js     # Settings modal
+│   ├── queue.js        # Queue panel
+│   ├── history.js      # History panel
+│   └── viewer.js       # Image lightbox
+└── LICENSE             # MIT
+```
+
+### Configuration Files
+
+| File | Location |
+|------|----------|
+| Config | `~/.ai-image-studio/config.json` |
+| History index | `~/.ai-image-studio/data/history.json` |
+| Generated images | `~/.ai-image-studio/data/<task-id>/` |
+
+> **Note:** API keys are stored in plaintext in the config file. This is acceptable for a local-only tool. Keep the file secure.
+
+### License
 
 [MIT](LICENSE)
 

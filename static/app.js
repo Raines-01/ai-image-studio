@@ -134,6 +134,28 @@ const App = {
       if (e.target === document.getElementById('history-picker-overlay'))
         document.getElementById('history-picker-overlay').classList.add('hidden');
     };
+
+    // History browse buttons
+    document.getElementById('history-browse-btn').onclick = () => {
+      const bar = document.getElementById('history-browse-bar');
+      bar.style.display = bar.style.display === 'none' ? 'flex' : 'none';
+      History.browseOutput('');
+    };
+    document.getElementById('history-back-btn').onclick = () => {
+      document.getElementById('history-browse-bar').style.display = 'none';
+      History.showHistory();
+    };
+    document.getElementById('history-browse-go').onclick = () => {
+      const dir = document.getElementById('history-browse-path').value.trim();
+      if (dir) History.browseOutput(dir);
+    };
+    document.getElementById('history-browse-pick').onclick = async () => {
+      const r = await API.browseDirectory();
+      if (r.path) {
+        document.getElementById('history-browse-path').value = r.path;
+        History.browseOutput(r.path);
+      }
+    };
   },
 
   addRefImages(files) {

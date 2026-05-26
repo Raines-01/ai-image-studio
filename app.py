@@ -45,6 +45,20 @@ class Handler(BaseHTTPRequestHandler):
             self._serve_queue_image(path)
         elif path.startswith("/api/history/") and "/images/" in path:
             self._serve_history_image(path)
+        elif path == "/api/browse-files":
+            qs = parse_qs(parsed.query)
+            d = qs.get("dir", [""])[0]
+            if d:
+                json_response(self, history_mgr.list_directory(d))
+            else:
+                json_response(self, [])
+        elif path == "/api/serve-file":
+            qs = parse_qs(parsed.query)
+            fpath = qs.get("path", [""])[0]
+            if fpath and Path(fpath).is_file():
+                serve_file(self, Path(fpath))
+            else:
+                error_response(self, 404, "File not found")
         else:
             error_response(self, 404, "Not found")
 
@@ -229,29 +243,22 @@ class Handler(BaseHTTPRequestHandler):
     # ── Browse directory ──
 
     def _browse_directory(self):
-        result = {"path": ""}
-        def pick():
-            try:
-                import tkinter as tk
-                from tkinter import filedialog
-                root = tk.Tk()
-                root.withdraw()
-                root.attributes("-topmost", True)
-                path = filedialog.askdirectory(title="Select Output Directory")
-                root.destroy()
-                result["path"] = path
-            except Exception:
-                pass
-        # Run in main thread context (tkinter needs it)
-        event = threading.Event()
-        def run():
-            pick()
-            event.set()
-        # tkinter needs to run in a thread that has main loop
-        t = threading.Thread(target=run, daemon=True)
-        t.start()
-        event.wait(timeout=60)
-        json_response(self, result)
+        import subprocess, sys
+        script = (
+            "import tkinter as tk; from tkinter import filedialog; "
+            "root=tk.Tk(); root.withdraw(); root.attributes('-topmost',True); "
+            "p=filedialog.askdirectory(title='Select Output Directory'); "
+            "root.destroy(); print(p)"
+        )
+        try:
+            r = subprocess.run(
+                [sys.executable, "-c", script],
+                capture_output=True, text=True, timeout=120,
+            )
+            path = r.stdout.strip()
+            json_response(self, {"path": path})
+        except Exception as e:
+            json_response(self, {"path": "", "error": str(e)})
 
     def _read_json(self):
         length = int(self.headers.get("Content-Length", 0))

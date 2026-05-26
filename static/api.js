@@ -62,6 +62,11 @@ const API = {
     return r.json();
   },
 
+  async browseFiles(dir) {
+    const r = await fetch(`/api/browse-files?dir=${encodeURIComponent(dir)}`);
+    return r.json();
+  },
+
   async getHistory(q) {
     const url = q ? `/api/history?q=${encodeURIComponent(q)}` : '/api/history';
     const r = await fetch(url);

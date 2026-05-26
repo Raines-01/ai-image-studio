@@ -74,6 +74,7 @@ class QueueManager:
             "config_id": t["config_id"],
             "custom_filename": t["custom_filename"],
             "result_files": t["result_files"],
+            "result_dir": t.get("result_dir", ""),
             "error": t["error"],
             "created_at": t["created_at"],
             "started_at": t["started_at"],
@@ -115,10 +116,18 @@ class QueueManager:
                     task["error"] = "Cancelled by user"
                     continue
 
+                # Determine output directory
+                out_dir = config.get("default_output_dir", "").strip()
+                if not out_dir:
+                    out_dir = str(self.data_dir)
+                out_dir = Path(out_dir)
+                out_dir.mkdir(parents=True, exist_ok=True)
+
                 fmt = task["params"].get("output_format", "png")
                 ext = f".{fmt}" if fmt else ".png"
-                files = self._save_images(task["id"], images, ext, task["custom_filename"])
+                files = self._save_images(task, images, ext, out_dir)
                 task["result_files"] = files
+                task["result_dir"] = str(out_dir)
                 task["status"] = "done"
 
                 self.history_mgr.add(task, config)
@@ -133,15 +142,15 @@ class QueueManager:
 
             task["finished_at"] = time.time()
 
-    def _save_images(self, task_id, images, ext, custom_filename=""):
-        out_dir = self.data_dir / task_id
-        out_dir.mkdir(parents=True, exist_ok=True)
+    def _save_images(self, task, images, ext, out_dir):
+        custom = task.get("custom_filename", "").strip()
         files = []
         for i, img_data in enumerate(images):
-            if custom_filename and len(images) == 1:
-                name = custom_filename if custom_filename.endswith(ext) else custom_filename + ext
+            if custom and len(images) == 1:
+                name = custom if custom.endswith(ext) else custom + ext
             else:
-                name = f"{task_id}_{i}{ext}"
+                ts = int(task["created_at"] * 1000)
+                name = f"img_{ts}_{i}{ext}" if len(images) > 1 else f"img_{ts}{ext}"
             (out_dir / name).write_bytes(img_data)
             files.append(name)
         return files

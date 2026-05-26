@@ -3,9 +3,10 @@
 import json
 import os
 import shutil
-import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 
 
 class HistoryManager:
@@ -40,6 +41,7 @@ class HistoryManager:
             "config_id": task["config_id"],
             "config_name": config.get("name", ""),
             "files": task["result_files"],
+            "result_dir": task.get("result_dir", ""),
             "reference_images": [img.get("filename", "") for img in task.get("reference_images", [])],
             "custom_filename": task.get("custom_filename", ""),
         }
@@ -60,10 +62,11 @@ class HistoryManager:
         return None
 
     def delete(self, entry_id):
-        before = len(self.data["images"])
-        self.data["images"] = [e for e in self.data["images"] if e["id"] != entry_id]
-        if len(self.data["images"]) == before:
+        entry = self.get(entry_id)
+        if not entry:
             return False
+        self.data["images"] = [e for e in self.data["images"] if e["id"] != entry_id]
+        # Try to delete from result_dir if it's under our data dir
         img_dir = self.data_dir / entry_id
         if img_dir.is_dir():
             shutil.rmtree(img_dir)
@@ -71,7 +74,32 @@ class HistoryManager:
         return True
 
     def get_image_path(self, entry_id, filename):
+        entry = self.get(entry_id)
+        if entry:
+            # Try result_dir first (user's output folder)
+            rd = entry.get("result_dir", "")
+            if rd:
+                fpath = Path(rd) / filename
+                if fpath.is_file():
+                    return fpath
+        # Fallback to data dir
         fpath = self.data_dir / entry_id / filename
         if fpath.is_file():
             return fpath
         return None
+
+    def list_directory(self, dir_path):
+        """List image files in a directory for browsing."""
+        d = Path(dir_path)
+        if not d.is_dir():
+            return []
+        files = []
+        for f in sorted(d.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
+            if f.is_file() and f.suffix.lower() in IMAGE_EXTS:
+                files.append({
+                    "name": f.name,
+                    "path": str(f),
+                    "size": f.stat().st_size,
+                    "mtime": f.stat().st_mtime,
+                })
+        return files
