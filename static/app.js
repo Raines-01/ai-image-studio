@@ -289,7 +289,7 @@ const App = {
   async loadHistory() {
     try {
       const data = await API.getHistory();
-      History.render(data.entries || data);
+      History.render(Array.isArray(data) ? data : (data.images || []));
     } catch (e) { /* ignore */ }
   },
 

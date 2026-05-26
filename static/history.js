@@ -104,7 +104,7 @@ const History = {
   async loadHistory() {
     try {
       const data = await API.getHistory();
-      this.entries = data.entries || data;
+      this.entries = Array.isArray(data) ? data : (data.images || []);
       if (!this.browseMode) this.render(this.entries);
     } catch (e) {}
   },
@@ -198,7 +198,7 @@ const History = {
         if (this.browseMode) return;
         const q = input.value.trim();
         const data = await API.getHistory(q);
-        this.entries = data.entries || data;
+        this.entries = Array.isArray(data) ? data : (data.images || []);
         this.render(this.entries);
       }, 300);
     });
