@@ -225,10 +225,21 @@ const App = {
   },
 
   startQueuePolling() {
+    this.state.lastTaskStates = {};
     this.state.queuePolling = setInterval(async () => {
       try {
         const tasks = await API.getQueue();
         Queue.render(tasks);
+        // Detect newly completed tasks and auto-refresh
+        for (const t of tasks) {
+          const prev = this.state.lastTaskStates[t.id];
+          if (prev !== 'done' && t.status === 'done') {
+            this.showTaskResult(t);
+            this.loadHistory();
+          }
+        }
+        this.state.lastTaskStates = {};
+        for (const t of tasks) this.state.lastTaskStates[t.id] = t.status;
       } catch (e) { /* ignore */ }
     }, 1000);
   },
@@ -243,15 +254,30 @@ const App = {
   showTaskResult(task) {
     if (!task.result_files || !task.result_files.length) return;
     const urls = task.result_files.map(f => `/api/images/${task.id}/${f}`);
+    const meta = {prompt: JSON.stringify(task.prompt), params: JSON.stringify(task.params)};
     const resultArea = document.getElementById('result-area');
+
+    const makeImg = (u, i) => `<img src="${u}" class="result-img" onclick="Viewer.show(${JSON.stringify(urls)}, ${i}, {prompt:${meta.prompt}, params:${meta.params}})">`;
+    const makeDownload = (u, name) => `<a href="${u}" download="${name}" class="btn btn-secondary btn-small">Download ${name}</a>`;
+
     if (urls.length === 1) {
-      resultArea.innerHTML = `<img src="${urls[0]}" class="result-img" onclick="Viewer.show(${JSON.stringify(urls)}, 0, {prompt:${JSON.stringify(task.prompt)}, params:${JSON.stringify(task.params)}})">`;
+      const fname = task.result_files[0];
+      resultArea.innerHTML = `
+        <div style="text-align:center">
+          ${makeImg(urls[0], 0)}
+          <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
+            ${makeDownload(urls[0], fname)}
+          </div>
+        </div>`;
     } else {
-      resultArea.innerHTML = `<div class="result-multi">${urls.map((u, i) =>
-        `<img src="${u}" onclick="Viewer.show(${JSON.stringify(urls)}, ${i}, {prompt:${JSON.stringify(task.prompt)}, params:${JSON.stringify(task.params)}})">`
-      ).join('')}</div>`;
+      resultArea.innerHTML = `
+        <div style="text-align:center">
+          <div class="result-multi">${urls.map((u, i) => makeImg(u, i)).join('')}</div>
+          <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+            ${urls.map((u, i) => makeDownload(u, task.result_files[i])).join('')}
+          </div>
+        </div>`;
     }
-    this.loadHistory();
   },
 
   async loadRefFromUrl(url) {
