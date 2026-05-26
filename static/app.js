@@ -150,10 +150,12 @@ const App = {
       document.getElementById('history-browse-bar').style.display = 'none';
       History.showHistory();
     };
-    document.getElementById('history-browse-go').onclick = () => {
-      const dir = document.getElementById('history-browse-path').value.trim();
-      if (dir) History.browseOutput(dir);
-    };
+    document.getElementById('history-browse-path').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const dir = e.target.value.trim();
+        if (dir) History.browseOutput(dir);
+      }
+    });
     document.getElementById('history-browse-pick').onclick = async () => {
       const r = await API.browseDirectory();
       if (r.path) {
