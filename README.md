@@ -104,6 +104,12 @@ python3 app.py
 2. **第 2 步** — 输入 API Key 和模型名称（默认：`gpt-image-2`）
 3. **第 3 步** — 点击"测试连接"验证，然后"保存并开始"
 
+![配置向导 第1步：填写配置名称和API地址](step1.png)
+
+![配置向导 第2步：填写API Key和模型名称](step2.png)
+
+![配置向导 第3步：测试连接并保存](step3.png)
+
 后续可通过右上角 ⚙️ 齿轮图标添加更多配置。
 
 #### 第二步：生成图像
@@ -267,6 +273,12 @@ On first launch, a setup wizard will appear:
 2. **Step 2** — Enter your API Key and Model name (default: `gpt-image-2`)
 3. **Step 3** — Click "Test Connection" to verify, then "Save & Start"
 
+![Wizard Step 1: Config Name and API Base URL](step1.png)
+
+![Wizard Step 2: API Key and Model Name](step2.png)
+
+![Wizard Step 3: Test Connection and Save](step3.png)
+
 You can add more configs later via the ⚙️ gear icon in the top-right corner.
 
 #### Step 2: Generate Images
@@ -429,6 +441,12 @@ python3 app.py
 1. **第 1 步** — 輸入設定名稱（如「我的 API」）和 API Base URL（如 `https://www.dreamfield.top/v1`）
 2. **第 2 步** — 輸入 API Key 和模型名稱（預設：`gpt-image-2`）
 3. **第 3 步** — 點擊「測試連線」驗證，然後「儲存並開始」
+
+![設定精靈 第1步：填寫設定名稱與API位址](step1.png)
+
+![設定精靈 第2步：填寫API Key與模型名稱](step2.png)
+
+![設定精靈 第3步：測試連線並儲存](step3.png)
 
 後續可透過右上角 ⚙️ 齒輪圖示新增更多設定。
 
