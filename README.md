@@ -12,6 +12,8 @@
 
 AI Image Studio 是一个轻量级、跨平台的本地 Web 工具，让调用第三方图像生成 API（OpenAI 兼容格式）变得简单。只需配置 API URL、Key 和模型名称，就能通过直观的可视化界面生成图像，像使用 ChatGPT 一样简单。
 
+![AI Image Studio 界面截图](static/demo.png)
+
 ### 功能特性
 
 - **零依赖** — 仅需 Python 3.8+ 和 `requests`
@@ -154,6 +156,8 @@ ai-image-studio/
 
 AI Image Studio is a lightweight, cross-platform local web tool that makes it easy to call third-party image generation APIs (OpenAI compatible format). Simply configure your API URL, Key, and Model — then generate images through an intuitive visual interface, as simple as using ChatGPT.
 
+![AI Image Studio UI Screenshot](static/demo.png)
+
 ### Features
 
 - **Zero dependencies** — Only needs Python 3.8+ and `requests`
@@ -295,6 +299,8 @@ ai-image-studio/
 ### 什麼是 AI Image Studio？
 
 AI Image Studio 是一個輕量級、跨平台的本地 Web 工具，讓呼叫第三方圖像生成 API（OpenAI 相容格式）變得簡單。只需設定 API URL、Key 和模型名稱，就能透過直覺的視覺化介面生成影像，像使用 ChatGPT 一樣簡單。
+
+![AI Image Studio 介面截圖](static/demo.png)
 
 ### 功能特性
 
