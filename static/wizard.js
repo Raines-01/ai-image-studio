@@ -26,7 +26,8 @@ const Wizard = {
     const next = document.getElementById('wizard-next');
 
     back.style.display = this.step > 1 ? '' : 'none';
-    next.textContent = this.step === 3 ? 'Save & Start' : 'Next';
+    next.textContent = this.step === 3 ? 'Save & Start / 保存并开始' : 'Next / 下一步';
+    next.disabled = this.step === 3; // disabled until test passes
 
     if (this.step === 1) {
       body.innerHTML = `
@@ -53,7 +54,14 @@ const Wizard = {
     } else if (this.step === 3) {
       body.innerHTML = `
         <div style="text-align:center;padding:20px 0">
-          <div id="wiz-test-status" style="font-size:14px;color:var(--muted)">Click "Test Connection" to verify</div>
+          <div style="margin-bottom:16px;font-size:14px;color:var(--text)">
+            <div><strong>Name:</strong> ${this._esc(this.data.name)}</div>
+            <div><strong>URL:</strong> ${this._esc(this.data.url)}</div>
+            <div><strong>Model:</strong> ${this._esc(this.data.model)}</div>
+          </div>
+          <button class="btn btn-secondary" id="wiz-test-btn" onclick="Wizard.test()" style="margin-bottom:16px">Test Connection / 测试连接</button>
+          <div id="wiz-test-status" style="font-size:14px;color:var(--muted)">Click the button above to verify your API connection</div>
+          <div style="margin-top:12px"><a href="#" onclick="Wizard.skipTest();return false" style="font-size:12px;color:var(--muted)">Skip test and save directly / 跳过测试直接保存</a></div>
         </div>
       `;
     }
@@ -88,23 +96,37 @@ const Wizard = {
     }
   },
 
+  skipTest() {
+    document.getElementById('wizard-next').disabled = false;
+    const status = document.getElementById('wiz-test-status');
+    status.textContent = 'Test skipped / 已跳过测试';
+    status.style.color = 'var(--warning)';
+  },
+
   async test() {
     const status = document.getElementById('wiz-test-status');
+    const btn = document.getElementById('wiz-test-btn');
+    const nextBtn = document.getElementById('wizard-next');
     status.textContent = 'Testing...';
     status.style.color = 'var(--muted)';
+    btn.disabled = true;
     try {
       const r = await API.testConfig({ url: this.data.url, api_key: this.data.api_key, model: this.data.model });
       if (r.ok) {
         status.textContent = '✓ Connected!';
         status.style.color = 'var(--success)';
+        nextBtn.disabled = false;
       } else {
         status.textContent = '✗ Failed: ' + (r.message || 'Unknown error');
         status.style.color = 'var(--danger)';
+        nextBtn.disabled = true;
       }
     } catch (e) {
       status.textContent = '✗ Error: ' + e.message;
       status.style.color = 'var(--danger)';
+      nextBtn.disabled = true;
     }
+    btn.disabled = false;
   },
 
   async save() {
