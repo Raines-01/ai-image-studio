@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Image Studio</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Wizard overlay -->
+<div id="wizard-overlay" class="overlay hidden">
+  <div class="modal">
+    <h2>Welcome to AI Image Studio</h2>
+    <div class="wizard-steps">
+      <div class="wizard-step active" data-step="1"></div>
+      <div class="wizard-step" data-step="2"></div>
+      <div class="wizard-step" data-step="3"></div>
+    </div>
+    <div id="wizard-body" class="wizard-body"></div>
+    <div class="wizard-nav">
+      <button class="btn btn-secondary" id="wizard-back">Back</button>
+      <button class="btn btn-primary" id="wizard-next">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings overlay -->
+<div id="settings-overlay" class="overlay hidden">
+  <div class="modal modal-wide">
+    <h2>Settings</h2>
+    <div class="settings-layout">
+      <div class="settings-sidebar" id="settings-list"></div>
+      <div class="settings-content" id="settings-form"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="settings-new">New Config</button>
+      <button class="btn btn-danger" id="settings-delete">Delete</button>
+      <button class="btn btn-secondary" id="settings-test">Test Connection</button>
+      <button class="btn btn-primary" id="settings-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Viewer overlay -->
+<div id="viewer-overlay" class="viewer-overlay hidden">
+  <button class="viewer-close" id="viewer-close">&times;</button>
+  <button class="viewer-nav viewer-prev" id="viewer-prev">&#8249;</button>
+  <img class="viewer-img" id="viewer-img" src="" alt="">
+  <button class="viewer-nav viewer-next" id="viewer-next">&#8250;</button>
+  <div class="viewer-actions" id="viewer-actions">
+    <button class="btn btn-secondary" id="viewer-download">Download</button>
+    <button class="btn btn-secondary" id="viewer-ref">Use as Reference</button>
+  </div>
+  <div class="viewer-info" id="viewer-info"></div>
+</div>
+
+<!-- History picker overlay -->
+<div id="history-picker-overlay" class="overlay hidden">
+  <div class="modal modal-wide">
+    <h2>Select from History</h2>
+    <div class="history-header" style="margin-top:0">
+      <input type="text" id="history-picker-search" class="history-search" placeholder="Search...">
+    </div>
+    <div id="history-picker-grid" class="history-grid" style="max-height:400px;overflow-y:auto"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="history-picker-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header>
+  <h1>AI Image Studio</h1>
+  <div class="header-right">
+    <select class="config-select" id="config-dropdown"></select>
+    <button class="btn-icon" id="btn-settings" title="Settings">&#9881;</button>
+  </div>
+</header>
+
+<!-- Main -->
+<main>
+  <!-- Left panel -->
+  <section class="panel-left">
+    <div class="field">
+      <label>Prompt / 提示词</label>
+      <textarea id="prompt" placeholder="描述你想生成的图像...&#10;例: A cat wearing a top hat, oil painting style"></textarea>
+    </div>
+
+    <!-- Reference images -->
+    <div class="field" id="ref-section">
+      <label>Reference Images / 参考图片</label>
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="ref-files" accept="image/*" multiple>
+        <span>拖拽图片到这里、粘贴、或点击选择</span>
+      </div>
+      <div class="preview-row" id="ref-preview"></div>
+      <div style="margin-top:8px">
+        <button class="btn btn-small btn-secondary" id="btn-from-history">从历史选择</button>
+      </div>
+    </div>
+
+    <!-- Common params -->
+    <div class="row">
+      <div class="field">
+        <label>Size / 尺寸</label>
+        <select id="size-preset">
+          <option value="1024x1024">1024x1024 (1:1)</option>
+          <option value="1536x1024">1536x1024 (3:2)</option>
+          <option value="1024x1536">1024x1536 (2:3)</option>
+          <option value="auto">Auto</option>
+          <option value="custom">Custom...</option>
+        </select>
+        <input type="text" id="size-custom" class="hidden" placeholder="WxH, e.g. 1920x1080">
+      </div>
+      <div class="field">
+        <label>Quality / 质量</label>
+        <select id="quality">
+          <option value="auto">auto</option>
+          <option value="low">low</option>
+          <option value="medium">medium</option>
+          <option value="high">high</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Format / 格式</label>
+        <select id="output-format">
+          <option value="png">png</option>
+          <option value="jpeg">jpeg</option>
+          <option value="webp">webp</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Count / 数量</label>
+        <input type="number" id="num-images" min="1" max="10" value="1">
+      </div>
+    </div>
+
+    <!-- Advanced params -->
+    <details class="advanced-section">
+      <summary>Advanced Parameters / 高级参数</summary>
+      <div class="advanced-body">
+        <div class="field">
+          <label>Compression / 压缩率 (jpeg/webp, 0-100)</label>
+          <input type="number" id="output-compression" min="0" max="100" placeholder="100">
+        </div>
+        <div class="field">
+          <label>Moderation / 内容审查</label>
+          <select id="moderation">
+            <option value="auto">auto</option>
+            <option value="low">low (更宽松)</option>
+          </select>
+        </div>
+        <div class="field hidden" id="fidelity-field">
+          <label>Input Fidelity / 输入保真度 (图生图)</label>
+          <select id="input-fidelity">
+            <option value="low">low</option>
+            <option value="high">high (更匹配原图)</option>
+          </select>
+        </div>
+      </div>
+    </details>
+
+    <!-- Output options -->
+    <div class="field">
+      <label>Custom Filename / 自定义文件名 (可选)</label>
+      <input type="text" id="custom-filename" placeholder="留空则自动生成">
+    </div>
+
+    <button class="btn btn-primary" id="btn-generate" style="width:100%;padding:12px">Generate / 生成</button>
+    <div class="mode-hint" id="mode-indicator">Mode: Text to Image / 文生图</div>
+    <div class="status" id="status"></div>
+  </section>
+
+  <!-- Right panel -->
+  <section class="panel-right">
+    <div class="result-area" id="result-area">
+      <div class="result-placeholder">
+        <div class="icon">IMG</div>
+        <p>生成的图像将显示在这里</p>
+      </div>
+    </div>
+    <div class="queue-area">
+      <div class="queue-header">
+        <h3>Queue / 队列</h3>
+      </div>
+      <div id="queue-list"></div>
+    </div>
+  </section>
+</main>
+
+<!-- History -->
+<section class="history-area">
+  <div class="history-header">
+    <h3>History / 历史记录</h3>
+    <input type="text" id="history-search" class="history-search" placeholder="Search / 搜索...">
+  </div>
+  <div id="history-grid" class="history-grid"></div>
+</section>
+
+<!-- Context menu (hidden) -->
+<div id="context-menu" class="context-menu hidden"></div>
+
+<script src="/static/api.js"></script>
+<script src="/static/viewer.js"></script>
+<script src="/static/wizard.js"></script>
+<script src="/static/settings.js"></script>
+<script src="/static/queue.js"></script>
+<script src="/static/history.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
