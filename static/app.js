@@ -140,6 +140,9 @@ const App = {
         document.getElementById('history-picker-overlay').classList.add('hidden');
     };
 
+    // History delete all button
+    document.getElementById('history-delete-all-btn').onclick = () => History.deleteAll();
+
     // History browse buttons
     document.getElementById('history-browse-btn').onclick = () => {
       const bar = document.getElementById('history-browse-bar');

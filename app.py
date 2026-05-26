@@ -121,6 +121,21 @@ class Handler(BaseHTTPRequestHandler):
                 json_response(self, {"ok": True})
             else:
                 error_response(self, 404, "Task not found or not cancellable")
+        elif path == "/api/history":
+            history_mgr.delete_all()
+            json_response(self, {"ok": True})
+        elif "/images/" in path and path.startswith("/api/history/"):
+            # DELETE /api/history/<id>/images/<filename>
+            parts = path.split("/api/history/")[1]
+            segs = parts.split("/images/")
+            if len(segs) == 2:
+                eid, fname = segs
+                if history_mgr.delete_image(eid, fname):
+                    json_response(self, {"ok": True})
+                else:
+                    error_response(self, 404, "Image not found")
+            else:
+                error_response(self, 400, "Invalid path")
         elif path.startswith("/api/history/"):
             eid = path.split("/api/history/")[1]
             if history_mgr.delete(eid):

@@ -73,6 +73,33 @@ class HistoryManager:
         self.save()
         return True
 
+    def delete_all(self):
+        # Delete all image files under data dir
+        for entry in self.data["images"]:
+            img_dir = self.data_dir / entry["id"]
+            if img_dir.is_dir():
+                shutil.rmtree(img_dir)
+        self.data["images"] = []
+        self.save()
+        return True
+
+    def delete_image(self, entry_id, filename):
+        entry = self.get(entry_id)
+        if not entry:
+            return False
+        # Delete the file
+        fpath = self.get_image_path(entry_id, filename)
+        if fpath and fpath.is_file():
+            os.remove(fpath)
+        # Remove from entry's files list
+        if filename in entry.get("files", []):
+            entry["files"].remove(filename)
+        # If no files left, remove the entire entry
+        if not entry.get("files"):
+            self.data["images"] = [e for e in self.data["images"] if e["id"] != entry_id]
+        self.save()
+        return True
+
     def get_image_path(self, entry_id, filename):
         entry = self.get(entry_id)
         if entry:

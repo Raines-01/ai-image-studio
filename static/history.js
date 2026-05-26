@@ -20,7 +20,7 @@ const History = {
       if (!e.files || !e.files.length) return '';
       return e.files.map(f => {
         const url = `/api/history/${e.id}/images/${f}`;
-        return `<img src="${url}" title="${this._esc(e.prompt || '')}" data-id="${e.id}">`;
+        return `<img src="${url}" title="${this._esc(e.prompt || '')}" data-id="${e.id}" data-filename="${this._esc(f)}">`;
       }).join('');
     }).join('');
 
@@ -28,7 +28,7 @@ const History = {
       img.onclick = () => this.openViewer(img.dataset.id);
       img.oncontextmenu = (ev) => {
         ev.preventDefault();
-        this.showContextMenu(ev, img.dataset.id);
+        this.showContextMenu(ev, img.dataset.id, img.dataset.filename);
       };
     });
   },
@@ -58,37 +58,27 @@ const History = {
   },
 
   async browseOutput(dir) {
+    if (!dir) dir = this.browseDir || '';
     if (!dir) {
-      dir = this.browseDir || '';
-    }
-    if (!dir) {
-      // Try to get from active config
       try {
         const cfgData = await API.getConfig();
         const active = cfgData.configs.find(c => c.id === cfgData.active_config_id);
-        if (active && active.default_output_dir) {
-          dir = active.default_output_dir;
-        }
+        if (active && active.default_output_dir) dir = active.default_output_dir;
       } catch (e) {}
     }
     if (!dir) {
-      // Ask server for default output dir
       try {
         const paths = await fetch('/api/default-paths').then(r => r.json());
         dir = paths.data_dir || '';
       } catch (e) {}
     }
-    if (!dir) {
-      alert('Cannot determine output directory.');
-      return;
-    }
+    if (!dir) { alert('Cannot determine output directory.'); return; }
     this.browseDir = dir;
     this.browseMode = true;
     document.getElementById('history-browse-path').value = dir;
     document.getElementById('history-browse-btn').classList.add('active');
     try {
-      const files = await API.browseFiles(dir);
-      this.browseFiles = files;
+      this.browseFiles = await API.browseFiles(dir);
       this.renderBrowse();
     } catch (e) {
       this.browseFiles = [];
@@ -112,7 +102,6 @@ const History = {
   },
 
   openViewer(entryId) {
-    // Collect all images across all entries for navigation
     const allUrls = [];
     const allMeta = [];
     for (const e of this.entries) {
@@ -122,7 +111,6 @@ const History = {
         allMeta.push({ prompt: e.prompt, params: e.params });
       }
     }
-    // Find the index of the clicked entry's first image
     const clickedEntry = this.entries.find(e => e.id === entryId);
     let startIdx = 0;
     if (clickedEntry && clickedEntry.files) {
@@ -135,12 +123,16 @@ const History = {
     }
   },
 
-  showContextMenu(ev, entryId) {
+  showContextMenu(ev, entryId, filename) {
     const menu = document.getElementById('context-menu');
+    const entry = this.entries.find(e => e.id === entryId);
+    const hasMultiple = entry && entry.files && entry.files.length > 1;
     menu.innerHTML = `
-      <div class="context-menu-item" data-action="view">View / 查看</div>
+      <div class="context-menu-item" data-action="view">View / 查看大图</div>
       <div class="context-menu-item" data-action="ref">Use as Reference / 作为参考图</div>
-      <div class="context-menu-item danger" data-action="delete">Delete / 删除</div>
+      <div class="context-menu-item danger" data-action="delete-image">Delete this image / 删除此图</div>
+      ${hasMultiple ? '<div class="context-menu-item danger" data-action="delete-entry">Delete all in entry / 删除整组</div>' : ''}
+      <div class="context-menu-item danger" data-action="delete-all">Delete ALL / 删除全部历史</div>
     `;
     menu.style.left = ev.clientX + 'px';
     menu.style.top = ev.clientY + 'px';
@@ -154,7 +146,9 @@ const History = {
         const action = item.dataset.action;
         if (action === 'view') this.openViewer(entryId);
         else if (action === 'ref') this.useAsReference(entryId);
-        else if (action === 'delete') this.deleteEntry(entryId);
+        else if (action === 'delete-image') this.deleteImage(entryId, filename);
+        else if (action === 'delete-entry') this.deleteEntry(entryId);
+        else if (action === 'delete-all') this.deleteAll();
         close();
       };
     });
@@ -163,7 +157,7 @@ const History = {
   showBrowseContextMenu(ev, filePath) {
     const menu = document.getElementById('context-menu');
     menu.innerHTML = `
-      <div class="context-menu-item" data-action="view">View / 查看</div>
+      <div class="context-menu-item" data-action="view">View / 查看大图</div>
       <div class="context-menu-item" data-action="ref">Use as Reference / 作为参考图</div>
     `;
     menu.style.left = ev.clientX + 'px';
@@ -177,11 +171,9 @@ const History = {
       item.onclick = () => {
         const action = item.dataset.action;
         if (action === 'view') {
-          const url = `/api/serve-file?path=${encodeURIComponent(filePath)}`;
-          Viewer.show([url], 0, {});
+          Viewer.show([`/api/serve-file?path=${encodeURIComponent(filePath)}`], 0, {});
         } else if (action === 'ref') {
-          const url = `/api/serve-file?path=${encodeURIComponent(filePath)}`;
-          if (typeof App !== 'undefined') App.loadRefFromUrl(url);
+          if (typeof App !== 'undefined') App.loadRefFromUrl(`/api/serve-file?path=${encodeURIComponent(filePath)}`);
         }
         close();
       };
@@ -196,11 +188,39 @@ const History = {
     }
   },
 
+  async deleteImage(entryId, filename) {
+    if (!confirm(`Delete ${filename}?`)) return;
+    try {
+      await API.deleteHistoryImage(entryId, filename);
+      const entry = this.entries.find(e => e.id === entryId);
+      if (entry && entry.files) {
+        entry.files = entry.files.filter(f => f !== filename);
+        if (!entry.files.length) {
+          this.entries = this.entries.filter(e => e.id !== entryId);
+        }
+      }
+      this.render(this.entries);
+    } catch (e) {
+      alert('Delete failed: ' + e.message);
+    }
+  },
+
   async deleteEntry(entryId) {
-    if (!confirm('Delete this history entry?')) return;
+    if (!confirm('Delete this group / 删除整组?')) return;
     try {
       await API.deleteHistory(entryId);
       this.entries = this.entries.filter(e => e.id !== entryId);
+      this.render(this.entries);
+    } catch (e) {
+      alert('Delete failed: ' + e.message);
+    }
+  },
+
+  async deleteAll() {
+    if (!confirm('Delete ALL history? / 删除全部历史记录？')) return;
+    try {
+      await API.deleteHistoryAll();
+      this.entries = [];
       this.render(this.entries);
     } catch (e) {
       alert('Delete failed: ' + e.message);

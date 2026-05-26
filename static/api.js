@@ -76,5 +76,15 @@ const API = {
   async deleteHistory(id) {
     const r = await fetch(`/api/history/${id}`, { method: 'DELETE' });
     return r.json();
+  },
+
+  async deleteHistoryAll() {
+    const r = await fetch('/api/history', { method: 'DELETE' });
+    return r.json();
+  },
+
+  async deleteHistoryImage(entryId, filename) {
+    const r = await fetch(`/api/history/${entryId}/images/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+    return r.json();
   }
 };
