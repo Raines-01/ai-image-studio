@@ -24,7 +24,7 @@ pip install requests
 
 # Build
 echo "Building with PyInstaller..."
-pyinstaller --clean ai-image-studio.spec
+python3 -m PyInstaller --clean ai-image-studio.spec
 
 echo ""
 echo "=== Build complete ==="
