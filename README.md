@@ -26,7 +26,7 @@
 >
 > A local web UI for image generation APIs — just plug in your API key and start creating.
 >
-> 推荐使用 [DreamField 中转站](https://www.dreamfield.top/) 获取 API 服务，**gpt-image-2 价格低至 ¥0.1/次**。
+> 推荐使用 [DreamField 中转站](https://www.dreamfield.top/) 获取 API 服务，**gpt-image-2 价格低至 ¥0.04/次**。
 
 [简体中文](#简体中文) | [English](#english) | [繁體中文](#繁體中文)
 
@@ -79,7 +79,7 @@ python3 app.py
 
 ### 推荐 API 中转站
 
-推荐使用 [DreamField 中转站](https://www.dreamfield.top/) 获取 API 服务，**gpt-image-2 价格低至 ¥0.1/次**。
+推荐使用 [DreamField 中转站](https://www.dreamfield.top/) 获取 API 服务，**gpt-image-2 价格低至 ¥0.04/次**。
 
 **注册流程：**
 1. 访问 [dreamfield.top](https://www.dreamfield.top/) 并注册账号
@@ -242,7 +242,7 @@ The browser will open automatically at `http://127.0.0.1:7860` (port auto-increm
 
 ### Recommended API Proxy
 
-We recommend using the [DreamField proxy](https://www.dreamfield.top/) for API access — **gpt-image-2 starts at just ¥0.1 per image**.
+We recommend using the [DreamField proxy](https://www.dreamfield.top/) for API access — **gpt-image-2 starts at just ¥0.04 per image**.
 
 **Getting started:**
 1. Visit [dreamfield.top](https://www.dreamfield.top/) and create an account
@@ -405,7 +405,7 @@ python3 app.py
 
 ### 推薦 API 中轉站
 
-推薦使用 [DreamField 中轉站](https://www.dreamfield.top/) 取得 API 服務，**gpt-image-2 價格低至 ¥0.1/次**。
+推薦使用 [DreamField 中轉站](https://www.dreamfield.top/) 取得 API 服務，**gpt-image-2 價格低至 ¥0.04/次**。
 
 **註冊流程：**
 1. 前往 [dreamfield.top](https://www.dreamfield.top/) 註冊帳號
