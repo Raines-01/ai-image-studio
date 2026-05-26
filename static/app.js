@@ -143,11 +143,11 @@ const App = {
     // History browse buttons
     document.getElementById('history-browse-btn').onclick = () => {
       const bar = document.getElementById('history-browse-bar');
-      bar.style.display = bar.style.display === 'none' ? 'flex' : 'none';
+      bar.classList.toggle('hidden');
       History.browseOutput('');
     };
     document.getElementById('history-back-btn').onclick = () => {
-      document.getElementById('history-browse-bar').style.display = 'none';
+      document.getElementById('history-browse-bar').classList.add('hidden');
       History.showHistory();
     };
     document.getElementById('history-browse-path').addEventListener('keydown', (e) => {
