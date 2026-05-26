@@ -350,6 +350,55 @@ details.advanced-section[open] summary { border-bottom: 1px solid var(--border);
 }
 .history-grid img:hover { border-color: var(--accent); }
 
+.history-item {
+  position: relative;
+}
+.history-item-menu {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  background: rgba(0,0,0,.6);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+  padding: 0;
+  z-index: 2;
+}
+.history-item:hover .history-item-menu { opacity: 1; }
+.history-item-menu:hover { background: rgba(0,0,0,.8); }
+
+.history-item-dropdown {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 180px;
+  padding: 4px;
+  z-index: 10;
+}
+.history-item-dropdown .dropdown-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  white-space: nowrap;
+}
+.history-item-dropdown .dropdown-item:hover { background: var(--accent); color: #fff; }
+.history-item-dropdown .dropdown-item.danger { color: var(--danger); }
+.history-item-dropdown .dropdown-item.danger:hover { background: var(--danger); color: #fff; }
+
 /* ── Overlays / Modals ── */
 .overlay {
   position: fixed;
