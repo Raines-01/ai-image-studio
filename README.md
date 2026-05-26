@@ -1,3 +1,25 @@
+<!--
+╔══════════════════════════════════════════════════════════════════════╗
+║  DreamSeed 种梦计划 — AI创造者大赛  官方 README 模板                ║
+║                                                                      ║
+║  使用说明：                                                          ║
+║  1. 将本模板放在参赛仓库根目录 README.md 的顶部                       ║
+║  2. 头图使用 DreamField 官方公开活动图片地址                         ║
+║  3. 请保留 DREAMFIELD_README_HEADER_START / END 标识                 ║
+║  4. 分割线以下供创作者自由编写项目内容                               ║
+╚══════════════════════════════════════════════════════════════════════╝
+-->
+
+<!-- DREAMFIELD_README_HEADER_START -->
+
+<p align="center">
+  <a href="https://www.dreamfield.top">
+    <img src="https://www.dreamfield.top/dream-field/contest-readme/assets/dreamseed-readme-banner.png" alt="DreamSeed 种梦计划参赛作品" width="100%" />
+  </a>
+</p>
+
+<!-- DREAMFIELD_README_HEADER_END -->
+
 # AI Image Studio
 
 > 买了 gpt-image-2 中转 API 不知道怎么调用？启动即用，填入配置就能生图。
@@ -52,13 +74,30 @@ python3 app.py
 
 浏览器会自动打开 `http://127.0.0.1:7860`（端口被占用时自动递增）。
 
+### 推荐 API 中转站
+
+推荐使用 [DreamField 中转站](https://www.dreamfield.top/) 获取 API 服务，**gpt-image-2 价格低至 ¥0.1/次**。
+
+**注册流程：**
+1. 访问 [dreamfield.top](https://www.dreamfield.top/) 并注册账号
+2. 在控制台中创建 API Key
+3. 将以下三项配置填入 AI Image Studio 即可使用
+
+**配置信息：**
+
+| 配置项 | 值 |
+|--------|-----|
+| API Base URL | `https://www.dreamfield.top/v1` |
+| API Key | 在 [DreamField 控制台](https://www.dreamfield.top/) 创建 |
+| Model | `gpt-image-2` |
+
 ### 使用教程
 
 #### 第一步：配置 API
 
 首次启动会弹出配置向导：
 
-1. **第 1 步** — 输入配置名称（如"我的 API"）和 API Base URL（如 `https://api.example.com/v1`）
+1. **第 1 步** — 输入配置名称（如"我的 API"）和 API Base URL（如 `https://www.dreamfield.top/v1`）
 2. **第 2 步** — 输入 API Key 和模型名称（默认：`gpt-image-2`）
 3. **第 3 步** — 点击"测试连接"验证，然后"保存并开始"
 
@@ -198,13 +237,30 @@ python3 app.py
 
 The browser will open automatically at `http://127.0.0.1:7860` (port auto-increments if busy).
 
+### Recommended API Proxy
+
+We recommend using the [DreamField proxy](https://www.dreamfield.top/) for API access — **gpt-image-2 starts at just ¥0.1 per image**.
+
+**Getting started:**
+1. Visit [dreamfield.top](https://www.dreamfield.top/) and create an account
+2. Generate an API Key in the dashboard
+3. Enter the following three settings into AI Image Studio to start generating
+
+**Configuration:**
+
+| Setting | Value |
+|---------|-------|
+| API Base URL | `https://www.dreamfield.top/v1` |
+| API Key | Create at [DreamField dashboard](https://www.dreamfield.top/) |
+| Model | `gpt-image-2` |
+
 ### Usage Guide
 
 #### Step 1: Configure API
 
 On first launch, a setup wizard will appear:
 
-1. **Step 1** — Enter a config name (e.g. "My API") and your API Base URL (e.g. `https://api.example.com/v1`)
+1. **Step 1** — Enter a config name (e.g. "My API") and your API Base URL (e.g. `https://www.dreamfield.top/v1`)
 2. **Step 2** — Enter your API Key and Model name (default: `gpt-image-2`)
 3. **Step 3** — Click "Test Connection" to verify, then "Save & Start"
 
@@ -344,13 +400,30 @@ python3 app.py
 
 瀏覽器會自動開啟 `http://127.0.0.1:7860`（埠被佔用時自動遞增）。
 
+### 推薦 API 中轉站
+
+推薦使用 [DreamField 中轉站](https://www.dreamfield.top/) 取得 API 服務，**gpt-image-2 價格低至 ¥0.1/次**。
+
+**註冊流程：**
+1. 前往 [dreamfield.top](https://www.dreamfield.top/) 註冊帳號
+2. 在控制台中建立 API Key
+3. 將以下三項設定填入 AI Image Studio 即可使用
+
+**設定資訊：**
+
+| 設定項目 | 值 |
+|----------|-----|
+| API Base URL | `https://www.dreamfield.top/v1` |
+| API Key | 在 [DreamField 控制台](https://www.dreamfield.top/) 建立 |
+| Model | `gpt-image-2` |
+
 ### 使用教學
 
 #### 第一步：設定 API
 
 首次啟動會彈出設定精靈：
 
-1. **第 1 步** — 輸入設定名稱（如「我的 API」）和 API Base URL（如 `https://api.example.com/v1`）
+1. **第 1 步** — 輸入設定名稱（如「我的 API」）和 API Base URL（如 `https://www.dreamfield.top/v1`）
 2. **第 2 步** — 輸入 API Key 和模型名稱（預設：`gpt-image-2`）
 3. **第 3 步** — 點擊「測試連線」驗證，然後「儲存並開始」
 
