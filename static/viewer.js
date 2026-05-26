@@ -1,6 +1,7 @@
 /* Image viewer / lightbox */
 const Viewer = {
   images: [],
+  metaList: [],
   currentIndex: 0,
   metadata: null,
 
@@ -13,12 +14,26 @@ const Viewer = {
     document.getElementById('viewer-overlay').onclick = (e) => {
       if (e.target === document.getElementById('viewer-overlay')) this.hide();
     };
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('viewer-overlay').classList.contains('hidden')) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); this.prev(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); this.next(); }
+      else if (e.key === 'Escape') { this.hide(); }
+    });
   },
 
   show(images, index, metadata) {
-    this.images = images;
+    this.images = images || [];
     this.currentIndex = index || 0;
-    this.metadata = metadata || null;
+    // metadata can be a single object or an array (per-image)
+    if (Array.isArray(metadata)) {
+      this.metaList = metadata;
+      this.metadata = metadata[this.currentIndex] || null;
+    } else {
+      this.metaList = [];
+      this.metadata = metadata || null;
+    }
+    if (!this.images.length) return;
     this.render();
     document.getElementById('viewer-overlay').classList.remove('hidden');
   },
@@ -33,15 +48,20 @@ const Viewer = {
 
     const prev = document.getElementById('viewer-prev');
     const next = document.getElementById('viewer-next');
-    prev.style.display = this.images.length > 1 ? '' : 'none';
-    next.style.display = this.images.length > 1 ? '' : 'none';
+    const hasMulti = this.images.length > 1;
+    prev.style.display = hasMulti ? '' : 'none';
+    next.style.display = hasMulti ? '' : 'none';
 
+    // Use per-image metadata if available
+    const meta = this.metaList.length ? this.metaList[this.currentIndex] : this.metadata;
     const info = document.getElementById('viewer-info');
     let text = `${this.currentIndex + 1} / ${this.images.length}`;
-    if (this.metadata) {
-      if (this.metadata.prompt) text += ` — ${this.metadata.prompt}`;
-      if (this.metadata.params) {
-        text += ` | ${this.metadata.params.size || ''} | ${this.metadata.params.quality || ''}`;
+    if (meta) {
+      if (meta.prompt) text += ` — ${meta.prompt}`;
+      if (meta.params) {
+        const p = meta.params;
+        const parts = [p.size, p.quality, p.output_format].filter(Boolean);
+        if (parts.length) text += ` | ${parts.join(' | ')}`;
       }
     }
     info.textContent = text;

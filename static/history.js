@@ -110,11 +110,26 @@ const History = {
   },
 
   openViewer(entryId) {
-    const entry = this.entries.find(e => e.id === entryId);
-    if (!entry || !entry.files) return;
-    const urls = entry.files.map(f => `/api/history/${entry.id}/images/${f}`);
-    if (typeof Viewer !== 'undefined') {
-      Viewer.show(urls, 0, { prompt: entry.prompt, params: entry.params });
+    // Collect all images across all entries for navigation
+    const allUrls = [];
+    const allMeta = [];
+    for (const e of this.entries) {
+      if (!e.files) continue;
+      for (const f of e.files) {
+        allUrls.push(`/api/history/${e.id}/images/${f}`);
+        allMeta.push({ prompt: e.prompt, params: e.params });
+      }
+    }
+    // Find the index of the clicked entry's first image
+    const clickedEntry = this.entries.find(e => e.id === entryId);
+    let startIdx = 0;
+    if (clickedEntry && clickedEntry.files) {
+      const clickedUrl = `/api/history/${clickedEntry.id}/images/${clickedEntry.files[0]}`;
+      startIdx = allUrls.indexOf(clickedUrl);
+      if (startIdx < 0) startIdx = 0;
+    }
+    if (typeof Viewer !== 'undefined' && allUrls.length) {
+      Viewer.show(allUrls, startIdx, allMeta);
     }
   },
 
