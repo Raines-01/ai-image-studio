@@ -8,14 +8,17 @@ const Queue = {
     }
     el.innerHTML = tasks.map(t => {
       const badge = `badge-${t.status}`;
-      const statusText = { waiting: 'Waiting', generating: 'Generating', done: 'Done', failed: 'Failed' }[t.status] || t.status;
+      const statusText = { waiting: 'Waiting', generating: 'Generating...', done: 'Done', failed: 'Failed' }[t.status] || t.status;
       const cancelBtn = (t.status === 'waiting' || t.status === 'generating')
         ? `<button class="cancel-btn" data-id="${t.id}" title="Cancel">&times;</button>` : '';
+      const errorHtml = (t.status === 'failed' && t.error)
+        ? `<div style="font-size:11px;color:var(--danger);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${this._esc(t.error)}">${this._esc(t.error)}</div>` : '';
       return `
-        <div class="queue-item" data-id="${t.id}">
+        <div class="queue-item" data-id="${t.id}" style="flex-wrap:wrap">
           <span class="prompt-text">${this._esc(t.prompt || '')}</span>
           <span class="status-badge ${badge}">${statusText}</span>
           ${cancelBtn}
+          ${errorHtml}
         </div>`;
     }).join('');
 
