@@ -1,6 +1,7 @@
 """AI Image Studio - Local web tool for image generation APIs."""
 
 import json
+import os
 import threading
 import webbrowser
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -67,6 +68,8 @@ class Handler(BaseHTTPRequestHandler):
                 error_response(self, 404, "Config not found")
         elif path == "/api/generate":
             self._handle_generate(content_type)
+        elif path == "/api/browse-directory":
+            self._browse_directory()
         else:
             error_response(self, 404, "Not found")
 
@@ -223,7 +226,32 @@ class Handler(BaseHTTPRequestHandler):
         else:
             error_response(self, 404, "Image not found")
 
-    # ── Helpers ──
+    # ── Browse directory ──
+
+    def _browse_directory(self):
+        result = {"path": ""}
+        def pick():
+            try:
+                import tkinter as tk
+                from tkinter import filedialog
+                root = tk.Tk()
+                root.withdraw()
+                root.attributes("-topmost", True)
+                path = filedialog.askdirectory(title="Select Output Directory")
+                root.destroy()
+                result["path"] = path
+            except Exception:
+                pass
+        # Run in main thread context (tkinter needs it)
+        event = threading.Event()
+        def run():
+            pick()
+            event.set()
+        # tkinter needs to run in a thread that has main loop
+        t = threading.Thread(target=run, daemon=True)
+        t.start()
+        event.wait(timeout=60)
+        json_response(self, result)
 
     def _read_json(self):
         length = int(self.headers.get("Content-Length", 0))

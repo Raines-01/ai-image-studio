@@ -41,13 +41,23 @@ const Settings = {
     const el = document.getElementById('settings-form');
     const cfg = this.configs.find(c => c.id === this.selectedId);
 
+    const outdirVal = (this.isNew || !cfg) ? '' : this._esc(cfg.default_output_dir || '');
+    const outdirHtml = `
+      <div class="field">
+        <label>Default Output Directory</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="sf-outdir" value="${outdirVal}" placeholder="Leave empty for default (~/.ai-image-studio/output/)" style="flex:1">
+          <button class="btn btn-secondary" id="sf-browse" type="button">Browse</button>
+        </div>
+      </div>`;
+
     if (this.isNew || !cfg) {
       el.innerHTML = `
         <div class="field"><label>Name</label><input type="text" id="sf-name" placeholder="My API Provider"></div>
         <div class="field"><label>API Base URL</label><input type="text" id="sf-url" placeholder="https://api.example.com/v1"></div>
         <div class="field"><label>API Key</label><input type="password" id="sf-key" placeholder="sk-..."></div>
         <div class="field"><label>Model</label><input type="text" id="sf-model" placeholder="gpt-image-2" value="gpt-image-2"></div>
-        <div class="field"><label>Default Output Directory</label><input type="text" id="sf-outdir" placeholder="Leave empty for default (~/.ai-image-studio/output/)"></div>
+        ${outdirHtml}
       `;
     } else {
       el.innerHTML = `
@@ -55,9 +65,21 @@ const Settings = {
         <div class="field"><label>API Base URL</label><input type="text" id="sf-url" value="${this._esc(cfg.url)}"></div>
         <div class="field"><label>API Key</label><input type="password" id="sf-key" value="${this._esc(cfg.api_key)}"></div>
         <div class="field"><label>Model</label><input type="text" id="sf-model" value="${this._esc(cfg.model)}"></div>
-        <div class="field"><label>Default Output Directory</label><input type="text" id="sf-outdir" value="${this._esc(cfg.default_output_dir || '')}"></div>
+        ${outdirHtml}
       `;
     }
+
+    document.getElementById('sf-browse').onclick = async () => {
+      const btn = document.getElementById('sf-browse');
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
+        const r = await API.browseDirectory();
+        if (r.path) document.getElementById('sf-outdir').value = r.path;
+      } catch (e) { /* ignore */ }
+      btn.disabled = false;
+      btn.textContent = 'Browse';
+    };
   },
 
   getFormData() {

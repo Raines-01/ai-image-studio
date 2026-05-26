@@ -42,6 +42,11 @@ const API = {
     return r.json();
   },
 
+  async browseDirectory() {
+    const r = await fetch('/api/browse-directory', { method: 'POST' });
+    return r.json();
+  },
+
   async generate(formData) {
     const r = await fetch('/api/generate', { method: 'POST', body: formData });
     return r.json();
