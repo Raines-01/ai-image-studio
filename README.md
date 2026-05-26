@@ -24,6 +24,7 @@
 
 > 买了 gpt-image-2 中转 API 不知道怎么调用？启动即用，填入配置就能生图。
 > A local web UI for image generation APIs — just plug in your API key and start creating.
+> 推荐使用 [DreamField 中转站](https://www.dreamfield.top/) 获取 API 服务，**gpt-image-2 价格低至 ¥0.1/次**。
 
 [简体中文](#简体中文) | [English](#english) | [繁體中文](#繁體中文)
 
