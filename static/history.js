@@ -17,9 +17,11 @@ const History = {
       return;
     }
     grid.innerHTML = this.entries.map(e => {
-      const thumb = e.files && e.files.length
-        ? `/api/history/${e.id}/images/${e.files[0]}` : '';
-      return `<img src="${thumb}" title="${this._esc(e.prompt || '')}" data-id="${e.id}">`;
+      if (!e.files || !e.files.length) return '';
+      return e.files.map(f => {
+        const url = `/api/history/${e.id}/images/${f}`;
+        return `<img src="${url}" title="${this._esc(e.prompt || '')}" data-id="${e.id}">`;
+      }).join('');
     }).join('');
 
     grid.querySelectorAll('img').forEach(img => {

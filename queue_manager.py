@@ -102,14 +102,18 @@ class QueueManager:
                 if not config:
                     raise api_client.APIError("Config not found")
 
+                # Merge n into params for API call
+                api_params = dict(task["params"])
+                api_params["n"] = task["n"]
+
                 if task["mode"] == "image-editing":
                     images = api_client.generate_edit(
                         task["prompt"], task["reference_images"],
-                        task["params"], config
+                        api_params, config
                     )
                 else:
                     images = api_client.generate_text(
-                        task["prompt"], task["params"], config
+                        task["prompt"], api_params, config
                     )
 
                 if task.get("cancelled"):

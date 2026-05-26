@@ -298,10 +298,11 @@ const App = {
   showTaskResult(task) {
     if (!task.result_files || !task.result_files.length) return;
     const urls = task.result_files.map(f => `/api/images/${task.id}/${f}`);
-    const meta = {prompt: JSON.stringify(task.prompt), params: JSON.stringify(task.params)};
     const resultArea = document.getElementById('result-area');
 
-    const makeImg = (u, i) => `<img src="${u}" class="result-img" onclick="Viewer.show(${JSON.stringify(urls)}, ${i}, {prompt:${meta.prompt}, params:${meta.params}})">`;
+    // Store task data for viewer
+    const viewerData = JSON.stringify({urls, prompt: task.prompt, params: task.params});
+    const makeImg = (u, i) => `<img src="${u}" class="result-img" data-viewer='${viewerData}' data-idx="${i}">`;
     const makeDownload = (u, name) => `<a href="${u}" download="${name}" class="btn btn-secondary btn-small">Download ${name}</a>`;
 
     if (urls.length === 1) {
@@ -322,6 +323,14 @@ const App = {
           </div>
         </div>`;
     }
+
+    // Attach click handlers
+    resultArea.querySelectorAll('.result-img').forEach(img => {
+      img.onclick = () => {
+        const d = JSON.parse(img.dataset.viewer);
+        Viewer.show(d.urls, parseInt(img.dataset.idx), {prompt: d.prompt, params: d.params});
+      };
+    });
   },
 
   async loadRefFromUrl(url) {
