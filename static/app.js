@@ -34,17 +34,22 @@ const App = {
   applyActiveConfig() {
     const cfg = this.state.configs.find(c => c.id === this.state.activeConfigId);
     this.state.activeConfig = cfg || this.state.configs[0] || null;
-    if (this.state.activeConfig && this.state.activeConfig.default_params) {
-      const p = this.state.activeConfig.default_params;
-      if (p.size) {
-        const sel = document.getElementById('size-preset');
-        const custom = document.getElementById('size-custom');
-        const opt = [...sel.options].find(o => o.value === p.size);
-        if (opt) { sel.value = p.size; custom.classList.add('hidden'); }
-        else { sel.value = 'custom'; custom.value = p.size; custom.classList.remove('hidden'); }
+    if (this.state.activeConfig) {
+      // Output directory
+      document.getElementById('output-dir').value = this.state.activeConfig.default_output_dir || '';
+      // Default params
+      if (this.state.activeConfig.default_params) {
+        const p = this.state.activeConfig.default_params;
+        if (p.size) {
+          const sel = document.getElementById('size-preset');
+          const custom = document.getElementById('size-custom');
+          const opt = [...sel.options].find(o => o.value === p.size);
+          if (opt) { sel.value = p.size; custom.classList.add('hidden'); }
+          else { sel.value = 'custom'; custom.value = p.size; custom.classList.remove('hidden'); }
+        }
+        if (p.quality) document.getElementById('quality').value = p.quality;
+        if (p.output_format) document.getElementById('output-format').value = p.output_format;
       }
-      if (p.quality) document.getElementById('quality').value = p.quality;
-      if (p.output_format) document.getElementById('output-format').value = p.output_format;
     }
   },
 
@@ -156,6 +161,19 @@ const App = {
         History.browseOutput(r.path);
       }
     };
+
+    // Output directory browse
+    document.getElementById('btn-browse-output').onclick = async () => {
+      const r = await API.browseDirectory();
+      if (r.path) {
+        document.getElementById('output-dir').value = r.path;
+        // Save to active config
+        if (this.state.activeConfig) {
+          await API.updateConfig(this.state.activeConfigId, { default_output_dir: r.path });
+          this.state.activeConfig.default_output_dir = r.path;
+        }
+      }
+    };
   },
 
   addRefImages(files) {
@@ -222,10 +240,12 @@ const App = {
     if (!prompt) { this.setStatus('Please enter a prompt / 请输入提示词', 'error'); return; }
     if (!this.state.activeConfig) { this.setStatus('Please configure API first / 请先配置 API', 'error'); return; }
 
+    const outputDir = document.getElementById('output-dir').value.trim();
     const params = this.gatherParams();
     const form = new FormData();
     form.append('prompt', prompt);
     form.append('config_id', this.state.activeConfigId);
+    if (outputDir) form.append('output_dir', outputDir);
     for (const [k, v] of Object.entries(params)) {
       form.append(k, String(v));
     }

@@ -37,6 +37,11 @@ class Handler(BaseHTTPRequestHandler):
             json_response(self, config_mgr.get_all())
         elif path == "/api/queue":
             json_response(self, queue_mgr.get_all())
+        elif path == "/api/default-paths":
+            json_response(self, {
+                "data_dir": str(history_mgr.data_dir),
+                "output_dir": str(queue_mgr.data_dir),
+            })
         elif path == "/api/history":
             qs = parse_qs(parsed.query)
             q = qs.get("q", [""])[0]
@@ -196,6 +201,7 @@ class Handler(BaseHTTPRequestHandler):
                 pass
 
         custom_filename = parts.get("custom_filename", {}).get("text", "")
+        output_dir = parts.get("output_dir", {}).get("text", "")
 
         ref_images_raw = parts.get("image", [])
         if isinstance(ref_images_raw, dict):
@@ -208,6 +214,7 @@ class Handler(BaseHTTPRequestHandler):
             prompt=prompt, mode=mode, params=params,
             reference_images=ref_images, n=n,
             config_id=config_id, custom_filename=custom_filename,
+            output_dir=output_dir,
         )
         json_response(self, task, 201)
 
@@ -219,6 +226,14 @@ class Handler(BaseHTTPRequestHandler):
             error_response(self, 400, "Invalid path")
             return
         task_id, filename = parts
+        # Check task's result_dir first
+        task = queue_mgr.get(task_id)
+        if task and task.get("result_dir"):
+            fpath = Path(task["result_dir"]) / filename
+            if fpath.is_file():
+                serve_file(self, fpath)
+                return
+        # Fallback to default data dir
         fpath = queue_mgr.data_dir / task_id / filename
         if fpath.is_file():
             serve_file(self, fpath)

@@ -70,7 +70,14 @@ const History = {
       } catch (e) {}
     }
     if (!dir) {
-      alert('No output directory configured. Please set one in Settings.');
+      // Ask server for default output dir
+      try {
+        const paths = await fetch('/api/default-paths').then(r => r.json());
+        dir = paths.data_dir || '';
+      } catch (e) {}
+    }
+    if (!dir) {
+      alert('Cannot determine output directory.');
       return;
     }
     this.browseDir = dir;

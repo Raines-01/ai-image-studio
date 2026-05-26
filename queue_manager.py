@@ -19,7 +19,7 @@ class QueueManager:
         self.worker = threading.Thread(target=self._worker, daemon=True)
         self.worker.start()
 
-    def enqueue(self, prompt, mode, params, reference_images, n, config_id, custom_filename=""):
+    def enqueue(self, prompt, mode, params, reference_images, n, config_id, custom_filename="", output_dir=""):
         task = {
             "id": uuid.uuid4().hex[:12],
             "status": "waiting",
@@ -30,6 +30,7 @@ class QueueManager:
             "n": n,
             "config_id": config_id,
             "custom_filename": custom_filename,
+            "output_dir_override": output_dir,
             "result_files": [],
             "error": None,
             "created_at": time.time(),
@@ -117,7 +118,9 @@ class QueueManager:
                     continue
 
                 # Determine output directory
-                out_dir = config.get("default_output_dir", "").strip()
+                out_dir = task.get("output_dir_override", "").strip()
+                if not out_dir:
+                    out_dir = config.get("default_output_dir", "").strip()
                 if not out_dir:
                     out_dir = str(self.data_dir)
                 out_dir = Path(out_dir)
