@@ -45,6 +45,11 @@ header h1 {
   color: var(--text-bright);
   white-space: nowrap;
 }
+.header-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+}
 .header-right {
   display: flex;
   align-items: center;
