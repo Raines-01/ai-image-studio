@@ -122,10 +122,39 @@ class ConfigManager:
     def test_connection(url, api_key, model=None):
         url = url.rstrip("/")
         headers = {"Authorization": f"Bearer {api_key}"}
+        # Try /models first
         try:
             resp = requests.get(f"{url}/models", headers=headers, timeout=10)
             if resp.status_code == 200:
-                return True, "Connected successfully"
-            return False, f"HTTP {resp.status_code}: {resp.text[:200]}"
+                return True, "Connected successfully (via /models)"
+            # 401 = bad key; other errors = endpoint might not exist but API is reachable
+            if resp.status_code == 401:
+                return False, "Invalid API Key / API Key 无效"
+            # For other errors, try a minimal image generation request
+        except requests.RequestException:
+            pass
+        # Fallback: try image generation endpoint with a minimal request
+        try:
+            payload = {
+                "model": model or "gpt-image-2",
+                "prompt": "test",
+                "n": 1,
+                "size": "auto",
+                "quality": "low",
+            }
+            resp = requests.post(
+                f"{url}/images/generations",
+                json=payload,
+                headers=headers,
+                timeout=30,
+            )
+            if resp.status_code == 200:
+                return True, "Connected successfully (via /images/generations)"
+            if resp.status_code == 401:
+                return False, "Invalid API Key / API Key 无效"
+            # Any non-401 response means the endpoint is reachable
+            return True, f"API reachable (HTTP {resp.status_code}), key may be valid"
+        except requests.Timeout:
+            return False, "Connection timed out / 连接超时"
         except requests.RequestException as e:
             return False, str(e)
