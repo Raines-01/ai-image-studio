@@ -147,11 +147,21 @@ jobs:
           else
             cp artifacts/macos-build/ai-image-studio-macos.zip release/
           fi
+      - name: Get current release body
+        id: release_info
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BODY=$(gh release view release --repo ${{ github.repository }} --json body -q '.body' 2>/dev/null || echo "")
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$BODY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
       - name: Update Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: release
           name: AI Image Studio
+          body: ${{ steps.release_info.outputs.body }}
           make_latest: true
           files: |
             release/ai-image-studio.exe
