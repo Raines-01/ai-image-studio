@@ -223,13 +223,24 @@ class Handler(BaseHTTPRequestHandler):
             ref_images_raw = [ref_images_raw]
         ref_images = [p for p in ref_images_raw if p.get("data")]
 
-        mode = "image-editing" if ref_images else "text-to-image"
+        mask_raw = parts.get("mask")
+        mask_data = None
+        if mask_raw and isinstance(mask_raw, dict) and mask_raw.get("data"):
+            mask_data = mask_raw
+
+        # Determine mode after collecting all parts (order-independent)
+        if mask_data:
+            mode = "inpainting"
+        elif ref_images:
+            mode = "image-editing"
+        else:
+            mode = "text-to-image"
 
         task = queue_mgr.enqueue(
             prompt=prompt, mode=mode, params=params,
             reference_images=ref_images, n=n,
             config_id=config_id, custom_filename=custom_filename,
-            output_dir=output_dir,
+            output_dir=output_dir, mask=mask_data,
         )
         json_response(self, task, 201)
 

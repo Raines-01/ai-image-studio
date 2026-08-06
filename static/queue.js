@@ -2,19 +2,21 @@
 const Queue = {
   render(tasks) {
     const el = document.getElementById('queue-list');
+    const area = el.closest('.queue-area');
     if (!tasks || tasks.length === 0) {
-      el.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:8px">No tasks</div>';
+      area.classList.add('collapsed');
       return;
     }
+    area.classList.remove('collapsed');
     el.innerHTML = tasks.map(t => {
       const badge = `badge-${t.status}`;
       const statusText = { waiting: 'Waiting', generating: 'Generating...', done: 'Done', failed: 'Failed' }[t.status] || t.status;
       const cancelBtn = (t.status === 'waiting' || t.status === 'generating')
         ? `<button class="cancel-btn" data-id="${t.id}" title="Cancel">&times;</button>` : '';
       const errorHtml = (t.status === 'failed' && t.error)
-        ? `<div style="font-size:11px;color:var(--danger);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${this._esc(t.error)}">${this._esc(t.error)}</div>` : '';
+        ? `<div class="queue-error" title="${this._esc(t.error)}">${this._esc(t.error)}</div>` : '';
       return `
-        <div class="queue-item" data-id="${t.id}" style="flex-wrap:wrap">
+        <div class="queue-item" data-id="${t.id}">
           <span class="prompt-text">${this._esc(t.prompt || '')}</span>
           <span class="status-badge ${badge}">${statusText}</span>
           ${cancelBtn}

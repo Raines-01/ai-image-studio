@@ -139,6 +139,7 @@ const History = {
     menu.innerHTML = `
       <div class="context-menu-item" data-action="view">View / 查看大图</div>
       <div class="context-menu-item" data-action="ref">Use as Reference / 作为参考图</div>
+      <div class="context-menu-item" data-action="inpaint">Inpaint / 局部重绘</div>
       <div class="context-menu-item danger" data-action="delete-image">Delete this image / 删除此图</div>
       ${hasMultiple ? '<div class="context-menu-item danger" data-action="delete-entry">Delete all in entry / 删除整组</div>' : ''}
       <div class="context-menu-item danger" data-action="delete-all">Delete ALL / 删除全部历史</div>
@@ -155,6 +156,7 @@ const History = {
         const action = item.dataset.action;
         if (action === 'view') this.openViewer(entryId);
         else if (action === 'ref') this.useAsReference(entryId);
+        else if (action === 'inpaint') this.openInpaint(entryId, filename);
         else if (action === 'delete-image') this.deleteImage(entryId, filename);
         else if (action === 'delete-entry') this.deleteEntry(entryId);
         else if (action === 'delete-all') this.deleteAll();
@@ -163,11 +165,26 @@ const History = {
     });
   },
 
+  openInpaint(entryId, filename) {
+    const url = `/api/history/${entryId}/images/${encodeURIComponent(filename)}`;
+    MaskEditor.open(url, (sourceFile, maskFile, previewUrl) => {
+      App.setInpaintSource(sourceFile, maskFile, previewUrl);
+    });
+  },
+
+  openInpaintBrowse(filePath) {
+    const url = `/api/serve-file?path=${encodeURIComponent(filePath)}`;
+    MaskEditor.open(url, (sourceFile, maskFile, previewUrl) => {
+      App.setInpaintSource(sourceFile, maskFile, previewUrl);
+    });
+  },
+
   showBrowseContextMenu(ev, filePath) {
     const menu = document.getElementById('context-menu');
     menu.innerHTML = `
       <div class="context-menu-item" data-action="view">View / 查看大图</div>
       <div class="context-menu-item" data-action="ref">Use as Reference / 作为参考图</div>
+      <div class="context-menu-item" data-action="inpaint">Inpaint / 局部重绘</div>
     `;
     menu.style.left = ev.clientX + 'px';
     menu.style.top = ev.clientY + 'px';
@@ -183,6 +200,8 @@ const History = {
           Viewer.show([`/api/serve-file?path=${encodeURIComponent(filePath)}`], 0, {});
         } else if (action === 'ref') {
           if (typeof App !== 'undefined') App.loadRefFromUrl(`/api/serve-file?path=${encodeURIComponent(filePath)}`);
+        } else if (action === 'inpaint') {
+          this.openInpaintBrowse(filePath);
         }
         close();
       };
@@ -203,6 +222,7 @@ const History = {
     dd.innerHTML = `
       <div class="dropdown-item" data-action="view">View / 查看大图</div>
       <div class="dropdown-item" data-action="ref">Use as Reference / 作为参考图</div>
+      <div class="dropdown-item" data-action="inpaint">Inpaint / 局部重绘</div>
       <div class="dropdown-item danger" data-action="delete-image">Delete this image / 删除此图</div>
       ${hasMultiple ? '<div class="dropdown-item danger" data-action="delete-entry">Delete all in entry / 删除整组</div>' : ''}
       <div class="dropdown-item danger" data-action="delete-all">Delete ALL / 删除全部历史</div>
@@ -218,6 +238,7 @@ const History = {
         const action = di.dataset.action;
         if (action === 'view') this.openViewer(entryId);
         else if (action === 'ref') this.useAsReference(entryId);
+        else if (action === 'inpaint') this.openInpaint(entryId, filename);
         else if (action === 'delete-image') this.deleteImage(entryId, filename);
         else if (action === 'delete-entry') this.deleteEntry(entryId);
         else if (action === 'delete-all') this.deleteAll();

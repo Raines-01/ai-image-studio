@@ -71,7 +71,7 @@ const Wizard = {
     if (this.step === 1) {
       const name = document.getElementById('wiz-name').value.trim();
       const url = document.getElementById('wiz-url').value.trim();
-      if (!name || !url) { alert('Please fill in all fields'); return; }
+      if (!name || !url) { Toast.error('请填写所有字段', '名称和 URL 不能为空'); return; }
       this.data.name = name;
       this.data.url = url;
       this.step = 2;
@@ -79,7 +79,7 @@ const Wizard = {
     } else if (this.step === 2) {
       const key = document.getElementById('wiz-key').value.trim();
       const model = document.getElementById('wiz-model').value.trim();
-      if (!key || !model) { alert('Please fill in all fields'); return; }
+      if (!key || !model) { Toast.error('请填写所有字段', 'API Key 和模型名称不能为空'); return; }
       this.data.api_key = key;
       this.data.model = model;
       this.step = 3;
@@ -134,12 +134,12 @@ const Wizard = {
       const cfg = await API.createConfig(this.data);
       await API.activateConfig(cfg.id);
       await API.updateConfig(cfg.id, { _mark_first_run: true });
-      // Mark first run done via a separate call
       await fetch('/api/config/first-run-done', { method: 'POST' });
       this.hide();
+      Toast.success('配置已保存', '开始生成你的第一张图片吧！');
       if (typeof App !== 'undefined') App.onConfigSaved();
     } catch (e) {
-      alert('Failed to save: ' + e.message);
+      Toast.error('保存失败', e.message);
     }
   },
 

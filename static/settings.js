@@ -95,7 +95,7 @@ const Settings = {
   async save() {
     const data = this.getFormData();
     if (!data.name || !data.url || !data.api_key || !data.model) {
-      alert('Please fill in all required fields');
+      Toast.error('请填写所有必填字段', '名称、URL、API Key 和模型名称不能为空');
       return;
     }
     try {
@@ -110,38 +110,40 @@ const Settings = {
         if (idx >= 0) Object.assign(this.configs[idx], data);
       }
       this.renderList();
+      Toast.success('配置已保存', '');
       if (typeof App !== 'undefined') App.onConfigSaved();
     } catch (e) {
-      alert('Save failed: ' + e.message);
+      Toast.error('保存失败', e.message);
     }
   },
 
   async del() {
     if (!this.selectedId) return;
-    if (!confirm('Delete this config?')) return;
+    if (!confirm('确定删除此配置？')) return;
     try {
       await API.deleteConfig(this.selectedId);
       this.configs = this.configs.filter(c => c.id !== this.selectedId);
       this.selectedId = this.configs.length ? this.configs[0].id : '';
       this.renderList();
       this.renderForm();
+      Toast.success('已删除', '');
       if (typeof App !== 'undefined') App.onConfigSaved();
     } catch (e) {
-      alert('Delete failed: ' + e.message);
+      Toast.error('删除失败', e.message);
     }
   },
 
   async test() {
     const data = this.getFormData();
     if (!data.url || !data.api_key) {
-      alert('Please fill in URL and API Key');
+      Toast.error('请填写 URL 和 API Key', '');
       return;
     }
     const r = await API.testConfig(data);
     if (r.ok) {
-      alert('✓ Connected!');
+      Toast.success('连接成功', '✓');
     } else {
-      alert('✗ Failed: ' + (r.message || 'Unknown error'));
+      Toast.error('连接失败', r.message || '未知错误');
     }
   },
 

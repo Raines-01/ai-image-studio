@@ -18,7 +18,7 @@ def generate_text(prompt, params, config, timeout=300):
         "Authorization": f"Bearer {config['api_key']}",
         "Content-Type": "application/json",
     }
-    payload = {"model": config["model"], "prompt": prompt}
+    payload = {"model": config["model"], "prompt": prompt, "response_format": "b64_json"}
     for key in ("size", "quality", "output_format", "output_compression", "moderation", "n"):
         val = params.get(key)
         if val is not None and val != "":
@@ -42,11 +42,11 @@ def generate_text(prompt, params, config, timeout=300):
     return _extract_images(resp.json())
 
 
-def generate_edit(prompt, ref_images, params, config, timeout=300):
+def generate_edit(prompt, ref_images, params, config, timeout=300, mask=None):
     url = f"{config['url']}/images/edits"
     headers = {"Authorization": f"Bearer {config['api_key']}"}
 
-    data = {"model": config["model"], "prompt": prompt}
+    data = {"model": config["model"], "prompt": prompt, "response_format": "b64_json"}
     for key in ("size", "quality", "output_format", "output_compression", "input_fidelity", "moderation", "n"):
         val = params.get(key)
         if val is not None and val != "":
@@ -57,6 +57,11 @@ def generate_edit(prompt, ref_images, params, config, timeout=300):
         fname = img.get("filename", "image.png")
         ct = img.get("content_type", "image/png")
         files.append(("image", (fname, img["data"], ct)))
+
+    if mask:
+        fname = mask.get("filename", "mask.png")
+        ct = mask.get("content_type", "image/png")
+        files.append(("mask", (fname, mask["data"], ct)))
 
     try:
         resp = requests.post(url, data=data, files=files, headers=headers, timeout=timeout)
@@ -83,9 +88,9 @@ def _extract_images(response_data):
 
     result = []
     for img in images:
-        if "b64_json" in img:
+        if img.get("b64_json"):
             result.append(base64.b64decode(img["b64_json"]))
-        elif "url" in img:
+        elif img.get("url"):
             try:
                 r = requests.get(img["url"], timeout=60)
                 r.raise_for_status()

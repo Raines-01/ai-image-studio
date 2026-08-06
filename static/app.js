@@ -9,11 +9,17 @@ const App = {
     sizeLocked: true,
     sizeRatio: 1,
     sizeAuto: false,
+    inpaintSource: null,
+    inpaintMask: null,
+    inpaintPreview: null,
   },
 
   async init() {
     Viewer.init();
+    MaskEditor.init();
+    Toast.init();
     History.initSearch();
+    this.initHistoryCollapse();
 
     // Load config
     const cfgData = await API.getConfig();
@@ -136,6 +142,23 @@ const App = {
 
     // From history button
     document.getElementById('btn-from-history').onclick = () => this.openHistoryPicker();
+
+    // Inpaint upload button — pick a file then open mask editor
+    document.getElementById('btn-inpaint-upload').onclick = () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = () => {
+        const file = input.files[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        MaskEditor.open(url, (sourceFile, maskFile, previewUrl) => {
+          App.setInpaintSource(sourceFile, maskFile, previewUrl);
+        });
+      };
+      input.click();
+    };
+
     document.getElementById('history-picker-cancel').onclick = () => {
       document.getElementById('history-picker-overlay').classList.add('hidden');
     };
@@ -199,25 +222,96 @@ const App = {
     row.innerHTML = '';
     this.state.referenceImages.forEach((f, i) => {
       const url = f instanceof File ? URL.createObjectURL(f) : f;
+      const wrap = document.createElement('div');
+      wrap.className = 'preview-item';
+
       const img = document.createElement('img');
       img.src = url;
       img.className = 'preview-thumb';
       img.title = f.name || `Image ${i + 1}`;
       img.onclick = () => {
-        this.state.referenceImages.splice(i, 1);
-        this.renderRefPreviews();
-        this.detectMode();
+        const urls = this.state.referenceImages.map(ref =>
+          ref instanceof File ? URL.createObjectURL(ref) : ref
+        );
+        Viewer.show(urls, i);
       };
-      row.appendChild(img);
+
+      // Inpaint mask overlay on preview
+      if (this.state.inpaintMask && this.state.inpaintPreview) {
+        const overlay = document.createElement('img');
+        overlay.src = this.state.inpaintPreview;
+        overlay.className = 'preview-inpaint-overlay';
+        overlay.title = '局部重绘遮罩（红色区域将被重绘）';
+        wrap.appendChild(overlay);
+      }
+
+      const rm = document.createElement('button');
+      rm.className = 'preview-remove';
+      rm.textContent = '×';
+      rm.onclick = (e) => {
+        e.stopPropagation();
+        if (this.state.inpaintMask) {
+          this.clearInpaint();
+        } else {
+          this.state.referenceImages.splice(i, 1);
+          this.renderRefPreviews();
+          this.detectMode();
+        }
+      };
+
+      wrap.appendChild(img);
+      wrap.appendChild(rm);
+      row.appendChild(wrap);
     });
+
+    // Add clear inpaint button if in inpaint mode
+    if (this.state.inpaintMask) {
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'btn btn-small btn-danger';
+      clearBtn.textContent = '清除遮罩';
+      clearBtn.style.marginTop = '4px';
+      clearBtn.onclick = () => this.clearInpaint();
+      row.appendChild(clearBtn);
+    }
   },
 
   detectMode() {
-    const has = this.state.referenceImages.length > 0;
-    document.getElementById('mode-indicator').textContent = has
-      ? 'Mode: Image Editing / 图生图'
-      : 'Mode: Text to Image / 文生图';
-    document.getElementById('fidelity-field').classList.toggle('hidden', !has);
+    const indicator = document.getElementById('mode-indicator');
+    const inpaintBtn = document.getElementById('btn-inpaint-upload');
+    const is = !!this.state.inpaintMask;
+
+    if (is) {
+      indicator.textContent = 'Mode: Inpainting / 局部重绘';
+      indicator.className = 'mode-hint mode-inpaint';
+      inpaintBtn.classList.add('active');
+    } else {
+      const has = this.state.referenceImages.length > 0;
+      indicator.textContent = has
+        ? 'Mode: Image Editing / 图生图'
+        : 'Mode: Text to Image / 文生图';
+      indicator.className = 'mode-hint';
+      inpaintBtn.classList.remove('active');
+    }
+    document.getElementById('fidelity-field').classList.toggle('hidden', !is && this.state.referenceImages.length === 0);
+  },
+
+  setInpaintSource(sourceFile, maskFile, previewUrl) {
+    this.state.inpaintSource = sourceFile;
+    this.state.inpaintMask = maskFile;
+    this.state.inpaintPreview = previewUrl || null;
+    this.state.referenceImages = [sourceFile];
+    this.renderRefPreviews();
+    this.detectMode();
+    Toast.success('局部重绘已就绪', '涂抹区域将被重绘，其余部分保留');
+  },
+
+  clearInpaint() {
+    this.state.inpaintSource = null;
+    this.state.inpaintMask = null;
+    this.state.inpaintPreview = null;
+    this.state.referenceImages = [];
+    this.renderRefPreviews();
+    this.detectMode();
   },
 
   getSize() {
@@ -240,15 +334,18 @@ const App = {
     const params = { size, quality, output_format: fmt, n };
     if (compression) params.output_compression = parseInt(compression);
     if (moderation !== 'auto') params.moderation = moderation;
-    if (this.state.referenceImages.length > 0) params.input_fidelity = fidelity;
+    if (this.state.referenceImages.length > 0 || this.state.inpaintMask) params.input_fidelity = fidelity;
     if (filename) params.custom_filename = filename;
     return params;
   },
 
   async generate() {
     const prompt = document.getElementById('prompt').value.trim();
-    if (!prompt) { this.setStatus('Please enter a prompt / 请输入提示词', 'error'); return; }
-    if (!this.state.activeConfig) { this.setStatus('Please configure API first / 请先配置 API', 'error'); return; }
+    if (!prompt) { Toast.error('请输入提示词', 'Prompt 不能为空'); return; }
+    if (!this.state.activeConfig) { Toast.error('请先配置 API', '请在设置中添加 API 配置'); return; }
+
+    const btn = document.getElementById('btn-generate');
+    if (btn.classList.contains('btn-generate-loading')) return;
 
     const outputDir = document.getElementById('output-dir').value.trim();
     const params = this.gatherParams();
@@ -262,17 +359,29 @@ const App = {
     for (const f of this.state.referenceImages) {
       if (f instanceof File) form.append('image', f);
     }
+    if (this.state.inpaintMask) {
+      form.append('mask', this.state.inpaintMask);
+    }
 
-    this.setStatus('Submitting...');
+    btn.classList.add('btn-generate-loading');
+    const spinner = document.createElement('div');
+    spinner.className = 'btn-spinner';
+    spinner.innerHTML = '<div class="spinner spinner-small"></div>';
+    btn.appendChild(spinner);
+
     try {
       const r = await API.generate(form);
       if (r.error) {
-        this.setStatus(r.error, 'error');
+        Toast.error('生成失败', r.error);
       } else {
-        this.setStatus('Added to queue / 已加入队列', 'success');
+        Toast.success('已加入队列', '任务正在等待处理');
       }
     } catch (e) {
-      this.setStatus('Error: ' + e.message, 'error');
+      Toast.error('提交失败', e.message);
+    } finally {
+      btn.classList.remove('btn-generate-loading');
+      const sp = btn.querySelector('.btn-spinner');
+      if (sp) sp.remove();
     }
   },
 
@@ -312,6 +421,7 @@ const App = {
     const viewerData = JSON.stringify({urls, prompt: task.prompt, params: task.params});
     const makeImg = (u, i) => `<img src="${u}" class="result-img" data-viewer='${viewerData}' data-idx="${i}">`;
     const makeDownload = (u, name) => `<a href="${u}" download="${name}" class="btn btn-secondary btn-small">Download ${name}</a>`;
+    const makeInpaint = (u) => `<button class="btn btn-secondary btn-small result-inpaint-btn" data-url="${u}">Inpaint</button>`;
 
     if (urls.length === 1) {
       const fname = task.result_files[0];
@@ -320,6 +430,7 @@ const App = {
           ${makeImg(urls[0], 0)}
           <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
             ${makeDownload(urls[0], fname)}
+            ${makeInpaint(urls[0])}
           </div>
         </div>`;
     } else {
@@ -327,7 +438,7 @@ const App = {
         <div style="text-align:center">
           <div class="result-multi">${urls.map((u, i) => makeImg(u, i)).join('')}</div>
           <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-            ${urls.map((u, i) => makeDownload(u, task.result_files[i])).join('')}
+            ${urls.map((u, i) => makeDownload(u, task.result_files[i]) + ' ' + makeInpaint(u)).join('')}
           </div>
         </div>`;
     }
@@ -337,6 +448,15 @@ const App = {
       img.onclick = () => {
         const d = JSON.parse(img.dataset.viewer);
         Viewer.show(d.urls, parseInt(img.dataset.idx), {prompt: d.prompt, params: d.params});
+      };
+    });
+
+    // Attach inpaint handlers
+    resultArea.querySelectorAll('.result-inpaint-btn').forEach(btn => {
+      btn.onclick = () => {
+        MaskEditor.open(btn.dataset.url, (sourceFile, maskFile, previewUrl) => {
+          App.setInpaintSource(sourceFile, maskFile, previewUrl);
+        });
       };
     });
   },
@@ -360,21 +480,48 @@ const App = {
   },
 
   async openHistoryPicker() {
-    document.getElementById('history-picker-overlay').classList.remove('hidden');
-    const data = await API.getHistory();
-    const entries = data.entries || data;
+    const overlay = document.getElementById('history-picker-overlay');
     const grid = document.getElementById('history-picker-grid');
-    grid.innerHTML = entries.map(e => {
-      const thumb = e.files && e.files.length ? `/api/history/${e.id}/images/${e.files[0]}` : '';
-      return `<img src="${thumb}" title="${this._esc(e.prompt || '')}" data-id="${e.id}">`;
-    }).join('');
-    grid.querySelectorAll('img').forEach(img => {
-      img.onclick = async () => {
-        const entry = entries.find(e => e.id === img.dataset.id);
-        if (entry) await this.loadRefFromHistory(entry);
-        document.getElementById('history-picker-overlay').classList.add('hidden');
-      };
-    });
+    const searchInput = document.getElementById('history-picker-search');
+
+    overlay.classList.remove('hidden');
+    grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+    searchInput.value = '';
+
+    let allEntries = [];
+    try {
+      const data = await API.getHistory();
+      allEntries = Array.isArray(data) ? data : (data.entries || []);
+    } catch (err) {
+      grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load history</div>';
+      return;
+    }
+
+    const renderGrid = (entries) => {
+      if (!entries.length) {
+        grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">No history entries found</div>';
+        return;
+      }
+      grid.innerHTML = entries.map(e => {
+        const thumb = e.files && e.files.length ? `/api/history/${e.id}/images/${e.files[0]}` : '';
+        return `<img src="${thumb}" title="${this._esc(e.prompt || '')}" data-id="${e.id}">`;
+      }).join('');
+      grid.querySelectorAll('img').forEach(img => {
+        img.onclick = async () => {
+          const entry = allEntries.find(e => e.id === img.dataset.id);
+          if (entry) await this.loadRefFromHistory(entry);
+          overlay.classList.add('hidden');
+        };
+      });
+    };
+
+    renderGrid(allEntries);
+
+    searchInput.oninput = () => {
+      const q = searchInput.value.toLowerCase();
+      if (!q) return renderGrid(allEntries);
+      renderGrid(allEntries.filter(e => (e.prompt || '').toLowerCase().includes(q)));
+    };
   },
 
   onConfigSaved() {
@@ -524,6 +671,16 @@ const App = {
     const d = document.createElement('div');
     d.textContent = s;
     return d.innerHTML;
+  },
+
+  initHistoryCollapse() {
+    const toggle = document.getElementById('history-toggle');
+    const grid = document.getElementById('history-grid');
+    if (!toggle || !grid) return;
+    toggle.onclick = () => {
+      grid.classList.toggle('collapsed');
+      toggle.classList.toggle('collapsed');
+    };
   }
 };
 

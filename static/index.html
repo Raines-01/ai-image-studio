@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Image Studio</title>
+<!-- Tailwind CSS -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<!-- Open Props -->
+<link rel="stylesheet" href="https://unpkg.com/open-props@1.7.10/open-props.min.css">
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -19,8 +27,14 @@
     </div>
     <div id="wizard-body" class="wizard-body"></div>
     <div class="wizard-nav">
-      <button class="btn btn-secondary" id="wizard-back">Back</button>
-      <button class="btn btn-primary" id="wizard-next">Next</button>
+      <button class="btn btn-secondary" id="wizard-back">
+        <i data-lucide="arrow-left" style="width:16px;height:16px"></i>
+        Back
+      </button>
+      <button class="btn btn-primary" id="wizard-next">
+        Next
+        <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
+      </button>
     </div>
   </div>
 </div>
@@ -34,23 +48,51 @@
       <div class="settings-content" id="settings-form"></div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" id="settings-new">New Config</button>
-      <button class="btn btn-danger" id="settings-delete">Delete</button>
-      <button class="btn btn-secondary" id="settings-test">Test Connection</button>
-      <button class="btn btn-primary" id="settings-save">Save</button>
+      <button class="btn btn-secondary" id="settings-new">
+        <i data-lucide="plus" style="width:16px;height:16px"></i>
+        New Config
+      </button>
+      <button class="btn btn-danger" id="settings-delete">
+        <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+        Delete
+      </button>
+      <button class="btn btn-secondary" id="settings-test">
+        <i data-lucide="wifi" style="width:16px;height:16px"></i>
+        Test Connection
+      </button>
+      <button class="btn btn-primary" id="settings-save">
+        <i data-lucide="save" style="width:16px;height:16px"></i>
+        Save
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Viewer overlay -->
 <div id="viewer-overlay" class="viewer-overlay hidden">
-  <button class="viewer-close" id="viewer-close">&times;</button>
-  <button class="viewer-nav viewer-prev" id="viewer-prev">&#8249;</button>
+  <button class="viewer-close" id="viewer-close">
+    <i data-lucide="x" style="width:28px;height:28px"></i>
+  </button>
+  <button class="viewer-nav viewer-prev" id="viewer-prev">
+    <i data-lucide="chevron-left" style="width:28px;height:28px"></i>
+  </button>
   <img class="viewer-img" id="viewer-img" src="" alt="">
-  <button class="viewer-nav viewer-next" id="viewer-next">&#8250;</button>
+  <button class="viewer-nav viewer-next" id="viewer-next">
+    <i data-lucide="chevron-right" style="width:28px;height:28px"></i>
+  </button>
   <div class="viewer-actions" id="viewer-actions">
-    <button class="btn btn-secondary" id="viewer-download">Download</button>
-    <button class="btn btn-secondary" id="viewer-ref">Use as Reference</button>
+    <button class="btn btn-secondary" id="viewer-download">
+      <i data-lucide="download" style="width:16px;height:16px"></i>
+      Download
+    </button>
+    <button class="btn btn-secondary" id="viewer-ref">
+      <i data-lucide="copy" style="width:16px;height:16px"></i>
+      Use as Reference
+    </button>
+    <button class="btn btn-secondary" id="viewer-inpaint">
+      <i data-lucide="paintbrush" style="width:16px;height:16px"></i>
+      Inpaint / 局部重绘
+    </button>
   </div>
   <div class="viewer-info" id="viewer-info"></div>
 </div>
@@ -77,7 +119,9 @@
   </div>
   <div class="header-right">
     <select class="config-select" id="config-dropdown"></select>
-    <button class="btn-icon" id="btn-settings" title="Settings">&#9881;</button>
+    <button class="btn-icon" id="btn-settings" title="Settings">
+      <i data-lucide="settings"></i>
+    </button>
   </div>
 </header>
 
@@ -98,8 +142,15 @@
         <span>拖拽图片到这里、粘贴、或点击选择</span>
       </div>
       <div class="preview-row" id="ref-preview"></div>
-      <div style="margin-top:8px">
-        <button class="btn btn-small btn-secondary" id="btn-from-history">从历史选择</button>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-small btn-secondary" id="btn-from-history">
+          <i data-lucide="history" style="width:14px;height:14px"></i>
+          从历史选择
+        </button>
+        <button class="btn btn-small btn-secondary" id="btn-inpaint-upload" title="选择图片并进入局部重绘">
+          <i data-lucide="brush" style="width:14px;height:14px"></i>
+          局部重绘
+        </button>
       </div>
     </div>
 
@@ -205,7 +256,10 @@
       <input type="text" id="custom-filename" placeholder="留空则自动生成">
     </div>
 
-    <button class="btn btn-primary" id="btn-generate" style="width:100%;padding:12px">Generate / 生成</button>
+    <button class="btn btn-primary" id="btn-generate" style="width:100%;padding:12px">
+      <i data-lucide="image" style="width:18px;height:18px"></i>
+      <span class="btn-text">Generate / 生成</span>
+    </button>
     <div class="mode-hint" id="mode-indicator">Mode: Text to Image / 文生图</div>
     <div class="status" id="status"></div>
   </section>
@@ -213,9 +267,17 @@
   <!-- Right panel -->
   <section class="panel-right">
     <div class="result-area" id="result-area">
-      <div class="result-placeholder">
-        <div class="icon">IMG</div>
-        <p>生成的图像将显示在这里</p>
+      <div class="result-placeholder" id="result-placeholder">
+        <div class="empty-glow animate__animated animate__pulse animate__infinite">
+          <div class="empty-ring"></div>
+          <div class="empty-ring"></div>
+        </div>
+        <div class="empty-text">Your imagination, AI powered</div>
+        <div class="empty-sub">输入提示词，点击生成开始创作</div>
+        <button class="btn btn-primary btn-start animate__animated animate__bounceIn" onclick="document.getElementById('prompt').focus()">
+        <i data-lucide="sparkles" style="width:18px;height:18px"></i>
+        Start Creating
+      </button>
       </div>
     </div>
     <div class="queue-area">
@@ -230,15 +292,21 @@
 <!-- History -->
 <section class="history-area">
   <div class="history-header">
-    <h3>History / 历史记录</h3>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn btn-small" id="history-browse-btn">Browse Folder / 浏览文件夹</button>
-      <button class="btn btn-small btn-danger" id="history-delete-all-btn">Delete All / 清空</button>
+    <h3 id="history-toggle">History / 历史记录 <span class="collapse-icon">&#9660;</span></h3>
+    <div class="history-actions">
+      <button class="btn btn-small" id="history-browse-btn">
+        <i data-lucide="folder-open" style="width:14px;height:14px"></i>
+        Browse Folder / 浏览文件夹
+      </button>
+      <button class="btn btn-small btn-danger" id="history-delete-all-btn">
+        <i data-lucide="trash-2" style="width:14px;height:14px"></i>
+        Delete All / 清空
+      </button>
       <input type="text" id="history-search" class="history-search" placeholder="Search by prompt / 按提示词搜索历史记录..." style="width:380px">
     </div>
   </div>
-  <div id="history-browse-bar" class="hidden" style="margin-bottom:8px;display:flex;gap:8px;align-items:center">
-    <input type="text" id="history-browse-path" style="flex:1;padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px" placeholder="/path/to/output/folder">
+  <div id="history-browse-bar" class="hidden history-browse-bar">
+    <input type="text" id="history-browse-path" class="history-browse-path" placeholder="/path/to/output/folder">
     <button class="btn btn-small btn-secondary" id="history-browse-pick">选择目录</button>
     <button class="btn btn-small" id="history-back-btn">Back to History / 返回历史记录</button>
   </div>
@@ -248,12 +316,63 @@
 <!-- Context menu (hidden) -->
 <div id="context-menu" class="context-menu hidden"></div>
 
+<!-- Mask Editor overlay -->
+<div id="mask-editor-overlay" class="mask-editor-overlay hidden">
+  <div class="mask-editor-header">
+    <button class="btn btn-secondary btn-small" id="mask-cancel">
+      <i data-lucide="x" style="width:14px;height:14px"></i>
+      Cancel / 取消
+    </button>
+    <span class="mask-editor-title">
+      <i data-lucide="paintbrush" style="width:14px;height:14px"></i>
+      Mask Editor / 遮罩编辑器 — paint areas to regenerate
+    </span>
+    <button class="btn btn-primary btn-small" id="mask-confirm">
+      <i data-lucide="check" style="width:14px;height:14px"></i>
+      Confirm / 确认
+    </button>
+  </div>
+  <div class="mask-editor-canvas-wrap" id="mask-canvas-wrap"></div>
+  <div class="mask-editor-toolbar" id="mask-toolbar">
+    <button class="btn btn-small btn-secondary active" id="mask-brush-btn" title="Brush / 画笔 (B)">
+      <i data-lucide="brush" style="width:14px;height:14px"></i>
+      Brush
+    </button>
+    <button class="btn btn-small btn-secondary" id="mask-eraser-btn" title="Eraser / 橡皮擦 (E)">
+      <i data-lucide="eraser" style="width:14px;height:14px"></i>
+      Eraser
+    </button>
+    <div class="mask-size-control">
+      <label>Size</label>
+      <input type="range" id="mask-brush-size" min="5" max="200" value="30">
+      <span id="mask-brush-size-label">30</span>
+    </div>
+    <button class="btn btn-small btn-secondary" id="mask-undo-btn" title="Undo / 撤销 (Ctrl+Z)">
+      <i data-lucide="undo-2" style="width:14px;height:14px"></i>
+      Undo
+    </button>
+    <button class="btn btn-small btn-danger" id="mask-clear-btn" title="Clear / 清除">
+      <i data-lucide="trash" style="width:14px;height:14px"></i>
+      Clear
+    </button>
+  </div>
+</div>
+
+<!-- Toast notifications -->
+<div id="toast-container" class="toast-container"></div>
+
 <script src="/static/api.js"></script>
+<script src="/static/toast.js"></script>
 <script src="/static/viewer.js"></script>
+<script src="/static/mask-editor.js"></script>
 <script src="/static/wizard.js"></script>
 <script src="/static/settings.js"></script>
 <script src="/static/queue.js"></script>
 <script src="/static/history.js"></script>
 <script src="/static/app.js"></script>
+<script>
+  // Initialize Lucide icons
+  lucide.createIcons();
+</script>
 </body>
 </html>

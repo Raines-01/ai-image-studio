@@ -11,6 +11,7 @@ const Viewer = {
     document.getElementById('viewer-next').onclick = () => this.next();
     document.getElementById('viewer-download').onclick = () => this.download();
     document.getElementById('viewer-ref').onclick = () => this.useAsRef();
+    document.getElementById('viewer-inpaint').onclick = () => this.inpaint();
     document.getElementById('viewer-overlay').onclick = (e) => {
       if (e.target === document.getElementById('viewer-overlay')) this.hide();
     };
@@ -91,5 +92,13 @@ const Viewer = {
       App.loadRefFromUrl(this.images[this.currentIndex]);
       this.hide();
     }
+  },
+
+  inpaint() {
+    const url = this.images[this.currentIndex];
+    this.hide();
+    MaskEditor.open(url, (sourceFile, maskFile, previewUrl) => {
+      App.setInpaintSource(sourceFile, maskFile, previewUrl);
+    });
   }
 };

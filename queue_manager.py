@@ -19,7 +19,7 @@ class QueueManager:
         self.worker = threading.Thread(target=self._worker, daemon=True)
         self.worker.start()
 
-    def enqueue(self, prompt, mode, params, reference_images, n, config_id, custom_filename="", output_dir=""):
+    def enqueue(self, prompt, mode, params, reference_images, n, config_id, custom_filename="", output_dir="", mask=None):
         task = {
             "id": uuid.uuid4().hex[:12],
             "status": "waiting",
@@ -27,6 +27,7 @@ class QueueManager:
             "mode": mode,
             "params": params,
             "reference_images": reference_images,
+            "mask": mask,
             "n": n,
             "config_id": config_id,
             "custom_filename": custom_filename,
@@ -106,10 +107,11 @@ class QueueManager:
                 api_params = dict(task["params"])
                 api_params["n"] = task["n"]
 
-                if task["mode"] == "image-editing":
+                if task["mode"] in ("image-editing", "inpainting"):
                     images = api_client.generate_edit(
                         task["prompt"], task["reference_images"],
-                        api_params, config
+                        api_params, config,
+                        mask=task.get("mask")
                     )
                 else:
                     images = api_client.generate_text(

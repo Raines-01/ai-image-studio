@@ -26,7 +26,7 @@
 >
 > A local web UI for image generation APIs — just plug in your API key and start creating.
 >
-> 推荐使用 [DreamField 中转站](https://www.dreamfield.top/) 获取 API 服务，**gpt-image-2 价格低至 ¥0.04/次**。
+> 推荐使用 [DreamField 中转站](https://www.dreamfield.top/sign-up?aff=y1Cl) 获取 API 服务，**gpt-image-2 价格低至 ¥0.04/次**。
 
 [简体中文](#简体中文) | [English](#english) | [繁體中文](#繁體中文)
 
@@ -88,10 +88,10 @@ python3 app.py
 
 ### 推荐 API 中转站
 
-推荐使用 [DreamField 中转站](https://www.dreamfield.top/) 获取 API 服务，**gpt-image-2 价格低至 ¥0.04/次**。
+推荐使用 [DreamField 中转站](https://www.dreamfield.top/sign-up?aff=y1Cl) 获取 API 服务，**gpt-image-2 价格低至 ¥0.04/次**。
 
 **注册流程：**
-1. 访问 [dreamfield.top](https://www.dreamfield.top/) 并注册账号
+1. 访问 [dreamfield.top](https://www.dreamfield.top/sign-up?aff=y1Cl) 并注册账号
 2. 在控制台中创建 API Key
 3. 将以下三项配置填入 AI Image Studio 即可使用
 
@@ -100,7 +100,7 @@ python3 app.py
 | 配置项 | 值 |
 |--------|-----|
 | API Base URL | `https://www.dreamfield.top/v1` |
-| API Key | 在 [DreamField 控制台](https://www.dreamfield.top/) 创建 |
+| API Key | 在 [DreamField 控制台](https://www.dreamfield.top/sign-up?aff=y1Cl) 创建 |
 | Model | `gpt-image-2` |
 
 ### 使用教程
@@ -266,10 +266,10 @@ Currently supports **gpt-image-2** (any OpenAI-compatible API endpoint). More mo
 
 ### Recommended API Proxy
 
-We recommend using the [DreamField proxy](https://www.dreamfield.top/) for API access — **gpt-image-2 starts at just ¥0.04 per image**.
+We recommend using the [DreamField proxy](https://www.dreamfield.top/sign-up?aff=y1Cl) for API access — **gpt-image-2 starts at just ¥0.04 per image**.
 
 **Getting started:**
-1. Visit [dreamfield.top](https://www.dreamfield.top/) and create an account
+1. Visit [dreamfield.top](https://www.dreamfield.top/sign-up?aff=y1Cl) and create an account
 2. Generate an API Key in the dashboard
 3. Enter the following three settings into AI Image Studio to start generating
 
@@ -278,7 +278,7 @@ We recommend using the [DreamField proxy](https://www.dreamfield.top/) for API a
 | Setting | Value |
 |---------|-------|
 | API Base URL | `https://www.dreamfield.top/v1` |
-| API Key | Create at [DreamField dashboard](https://www.dreamfield.top/) |
+| API Key | Create at [DreamField dashboard](https://www.dreamfield.top/sign-up?aff=y1Cl) |
 | Model | `gpt-image-2` |
 
 ### Usage Guide
@@ -444,10 +444,10 @@ python3 app.py
 
 ### 推薦 API 中轉站
 
-推薦使用 [DreamField 中轉站](https://www.dreamfield.top/) 取得 API 服務，**gpt-image-2 價格低至 ¥0.04/次**。
+推薦使用 [DreamField 中轉站](https://www.dreamfield.top/sign-up?aff=y1Cl) 取得 API 服務，**gpt-image-2 價格低至 ¥0.04/次**。
 
 **註冊流程：**
-1. 前往 [dreamfield.top](https://www.dreamfield.top/) 註冊帳號
+1. 前往 [dreamfield.top](https://www.dreamfield.top/sign-up?aff=y1Cl) 註冊帳號
 2. 在控制台中建立 API Key
 3. 將以下三項設定填入 AI Image Studio 即可使用
 
@@ -456,7 +456,7 @@ python3 app.py
 | 設定項目 | 值 |
 |----------|-----|
 | API Base URL | `https://www.dreamfield.top/v1` |
-| API Key | 在 [DreamField 控制台](https://www.dreamfield.top/) 建立 |
+| API Key | 在 [DreamField 控制台](https://www.dreamfield.top/sign-up?aff=y1Cl) 建立 |
 | Model | `gpt-image-2` |
 
 ### 使用教學
